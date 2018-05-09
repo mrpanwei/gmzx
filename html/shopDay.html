@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>今日小报</title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+		<meta name="description" content="Write an awesome description for your new  in your document head meta">
+		<link rel="stylesheet" href="../lib/weui.min.css">
+		<link rel="stylesheet" href="../css/jquery-weui.css">
+		<link rel="stylesheet" href="../css/weui.css" />
+		<script src="../lib/jquery-2.1.4.js"></script>
+		<script src="../lib/fastclick.js"></script>
+		<link rel="stylesheet" href="../css/demos.css">
+		<script type="text/javascript" src="js/base.js"></script>
+
+		<script>
+			$(document).ready(function() {
+				if(!isUrlHxApp()){
+					dayInfo();
+				}
+			});
+
+			function HxAppready() {
+				dayInfo();
+			}
+
+			//验证用户身份
+			function IDValid() {
+				if(isBlank(cookieget("usersafety"))) {
+					if(isHxApp()) {
+						app_GoLogin();
+					} else {
+						window.location.href = "login.html";
+					}
+				}
+			}
+
+			function dayInfo() {
+				IDValid();
+				$.showLoading();
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "sellerGetDayInfo",
+					data: {
+						safeCode: cookieget("usersafety")
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function(response) {
+						if("success" == response[0].status) {
+							var info = response[0].data;
+							$("#normalNum").html(info.Table[0].num);
+							$("#refuseNum").html(info.Table1[0].num);
+							if(!isBlank(info.Table2)) {
+								var goodsList = info.Table2;
+								var htmlAll = "";
+								goodsList.forEach(function(value, index, array) {
+									htmlAll += itemMake(array[index].sp_short_name, array[index].sp_img_url, array[index].num, array[index].price, array[index].unit)
+								});
+								$("#contentList").html(htmlAll);
+							}
+						} else {
+							$("#contentList").html("");
+						}
+						$.hideLoading();
+					},
+					error: function() {
+						$.hideLoading();
+					}
+				})
+			}
+
+			function itemMake(sp_short_name, sp_img_url, num, price, unit) {
+				var html = "";
+				html += "<a href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">";
+				html += "<div class=\"weui-media-box__hd\">";
+				html += "<img class=\"weui-media-box__thumb\" src=\"http://img.554488.com/normal/" + sp_img_url + "\" alt=\"\">";
+				html += "</div>";
+				html += "<div class=\"weui-media-box__bd\">";
+				html += "<h4 class=\"weui-media-box__title\">" + sp_short_name + "(￥" + price + "/" + unit + ")</h4>";
+				html += "<p class=\"weui-media-box__desc\">频次：" + num + "</p>";
+				html += "</div>";
+				html += "</a>";
+				return html;
+			}
+		</script>
+		<style>
+			.head {
+				height: 3.0rem;
+				line-height: 3.0rem;
+				text-align: center;
+				background-color: #fff;
+				color: #52B3E5;
+				position: relative;
+				font-size: 1.3rem;
+			}
+			
+			.return {
+				font-size: 1.2rem;
+				color: #52B3E5;
+				position: absolute;
+				left: 1rem;
+				top: 0rem;
+			}
+			
+			.search {
+				color: #fff;
+				position: absolute;
+				right: 1rem;
+			}
+			
+		</style>
+	</head>
+
+	<body ontouchstart>
+
+		<div class="head" onclick="myBack('home.html')">
+			<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+			今日小报
+			<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+		</div>
+
+
+		<div class="page__bd">
+			<div class="weui-cells__title">正常订单</div>
+			<div class="weui-cells">
+				<div class="weui-cell">
+					<div class="weui-cell__bd">
+						<p id="normalNum"></p>
+					</div>
+					<div class="weui-cell__ft">
+						<!--176-->
+					</div>
+				</div>
+			</div>
+			<div class="weui-cells__title" style="color: #CE3C39;">用户拒签订单</div>
+			<div class="weui-cells">
+				<div class="weui-cell">
+					<div class="weui-cell__bd">
+						<p id="refuseNum" style="color: #CE3C39;"></p>
+					</div>
+					<div class="weui-cell__ft"></div>
+				</div>
+			</div>
+			<div class="weui-cells__title" style="font-weight: bold;">商品热销榜 TOP3</div>
+			<div class="weui-cells">
+				<div class="weui-panel__bd" id="contentList">
+
+				</div>
+			</div>
+		</div>
+		</div>
+
+		<script>
+			$(function() {
+				FastClick.attach(document.body);
+			});
+		</script>
+		<script src="../js/jquery-weui.js"></script>
+
+	</body>
+
+</html>

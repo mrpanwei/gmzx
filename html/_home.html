@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>骑手(平台)</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Write.xml site description.">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				riderInfo();
+			}
+		});
+
+		function HxAppready() {
+			riderInfo();
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		//页面初始化
+		function riderInfo() {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderGetInfoWorkInfo",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						console.log(list);
+						//信息初始化
+						$("#name").html(list.Table[0].name);
+						$("#phone").html(list.Table[0].phone);
+						//汇总初始化
+						$("#dayTag").html(list.Table1[0].day);
+						$("#monthTag").html(list.Table1[0].month);
+						$("#rankTag").html(list.Table1[0].rank);
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		///切换登录
+		function loginOut() {
+			$.confirm("您确定要退出系统吗？", "系统提示", function () {
+				if (isHxApp()) {
+					app_LoginOut();
+				} else {
+					cookieremove("usersafety");
+					window.location.href = "login.html";
+				}
+			}, function () {
+				//取消操作
+			});
+		}
+	</script>
+</head>
+
+<body ontouchstart>
+
+	<header class='demos-header'>
+		<h1 class="demos-title" style="color: #E15240;">烽火骑手</h1>
+	</header>
+	<div class="weui-cells">
+		<div class="weui-cell" style="padding:10px 10px">
+			<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+				<img src="img/moto.png" style="width: 50px;display: block">
+			</div>
+			<div class="weui-cell__bd">
+				<p id="name"></p>
+				<p id="phone" style="font-size: 13px;"></p>
+			</div>
+		</div>
+		<div class="weui-cell weui-cell_access">
+			<div class="weui-cell__bd">
+				<span style="vertical-align: middle">今日配送</span>
+				<span id="dayTag" class="weui-badge" style="margin-left: 5px;"></span>
+			</div>
+			<!--				<div class="weui-cell__ft"></div>-->
+		</div>
+		<div class="weui-cell weui-cell_access">
+			<div class="weui-cell__bd">
+				<span style="vertical-align: middle">本月配送</span>
+				<span id="monthTag" class="weui-badge" style="margin-left: 5px;"></span>
+			</div>
+			<!--	<div class="weui-cell__ft">详细信息</div>-->
+		</div>
+		<div class="weui-cell weui-cell_access">
+			<div class="weui-cell__bd">
+				<a href="_rank.html">
+					<span style="vertical-align: middle; color: black;">本月排名</span>
+					<span id="rankTag" class="weui-badge" style="margin-left: 5px;"></span>
+				</a>
+			</div>
+			<a href="_rank.html">
+				<div class="weui-cell__ft">
+					<span style="font-size: 13px;">龙虎榜</span>
+				</div>
+			</a>
+		</div>
+	</div>
+
+	<div class="weui-grids">
+		<a href="_deliveryMyself.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/bike.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				线路普通派送
+			</p>
+		</a>
+		<a href="_deliveryOther.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/motorbike-red.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				线路即时派送
+			</p>
+		</a>
+		<a href="_deliverySeller.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/moto.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				商户即时派送
+			</p>
+		</a>
+		<a href="javascript:loginOut()" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/ico-exit.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				切换登录
+			</p>
+		</a>
+	</div>
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>shop</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+	<meta name="description" content="Write an awesome description for your new  in your document head meta">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/weui.css" />
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="js/base.js"></script>
+
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				shopInfo();
+			}
+		});
+
+		function HxAppready() {
+			shopInfo();
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		//获取主页信息
+		function shopInfo() {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetInfo",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var info = response[0].data;
+						console.log(info);
+						$("#name").html(info[0].name);
+						$("#phone").html(info[0].mobile);
+						$("#address").html(info[0].address);
+						//	$("#scope").html(info[0].sTime + '-' + info[0].eTime);
+						//初始化打烊状态
+						if (info[0].ifDY == 1) {
+							$("#switchDY").prop("checked", "checked");
+						} else {
+							$("#switchDY").removeAttr("checked")
+						}
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//打烊或营业操作
+		function switchDY() {
+			if ($("#switchDY").prop("checked") == true) {
+				$.confirm("您确定打烊么？", "系统提示", function () {
+					$.showLoading();
+					jQuery.ajax({
+						type: "get",
+						url: horse_ajax + "sellerShopOpe",
+						data: {
+							safeCode: cookieget("usersafety"),
+							ope: "off"
+						},
+						dataType: "jsonp",
+						crossDomain: true,
+						success: function (response) {
+							$.hideLoading();
+							if ("success" == response[0].status) {
+								$("#switchDY").removeAttr("checked");
+							}
+							$.toast(response[0].mesg);
+
+						},
+						error: function () {
+							$.hideLoading();
+						}
+					})
+				}, function () {
+					//取消操作
+				});
+			} else {
+				$.confirm("您确定营业么？", "系统提示", function () {
+					$.showLoading();
+					jQuery.ajax({
+						type: "get",
+						url: horse_ajax + "sellerShopOpe",
+						data: {
+							safeCode: cookieget("usersafety"),
+							ope: "on"
+						},
+						dataType: "jsonp",
+						crossDomain: true,
+						success: function (response) {
+							$.hideLoading();
+							if ("success" == response[0].status) {
+								$("#switchDY").prop("checked", "checked");
+							}
+							$.toast(response[0].mesg);
+						},
+						error: function () {
+							$.hideLoading();
+						}
+					})
+
+				}, function () {
+					//取消操作
+				});
+			}
+		}
+
+		function updatePswd() {
+			if (isBlank($("#oldPswd").val())) {
+				$("#oldPswd").focus();
+				$.toast("原密码为空", "forbidden");
+				return;
+			}
+			if (isBlank($("#newPswd").val())) {
+				$("#newPswd").focus();
+				$.toast("新密码为空", "forbidden");
+				return;
+			}
+			if ($("#newPswd").val().length < 6) {
+				$("#newPswd").focus();
+				$.toast("密码至少6位", "forbidden");
+				return;
+			}
+			if (isBlank($("#newPswd2").val())) {
+				$("#newPswd2").focus();
+				$.toast("重复密码为空", "forbidden");
+				return;
+			}
+			if ($("#newPswd2").val().length < 6) {
+				$("#newPswd2").focus();
+				$.toast("密码至少6位", "forbidden");
+				return;
+			}
+			if ($("#newPswd").val() != $("#newPswd2").val()) {
+				$.toast("输入密码不一致", "forbidden");
+				return;
+			}
+			//提交更新
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "appPswdChange",
+				data: {
+					safeCode: cookieget("usersafety"),
+					oldKey: $("#oldPswd").val(),
+					codeKey: $("#newPswd").val()
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var info = response[0].data;
+						$.toast(response[0].mesg, "success");
+					} else {
+						$.toast(response[0].mesg, "forbidden");
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+</head>
+
+<body ontouchstart>
+
+	<div class="head" onclick="myBack('home.html')">
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+		商家设置
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+	</div>
+
+	<div class="weui-cells">
+		<div class="weui-cell">
+			<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+				<img src="img/xm.png" style="width: 50px;display: block">
+			</div>
+			<div class="weui-cell__bd">
+				<a href="#">
+					<p id="name" style="color: black;"></p>
+					<p id="phone" style="font-size: 13px;color: black;"></p>
+				</a>
+			</div>
+		</div>
+		<div class="weui-cells__title">取货地址</div>
+		<div class="weui-cell weui-cell_access">
+			<div class="weui-cell__bd">
+				<span style="vertical-align: middle">地址</span>
+			</div>
+			<div class="weui-cell__ft" id="address"></div>
+		</div>
+		<!--<div class="weui-cells__title">营业时段</div>
+			<div class="weui-cell weui-cell_access">
+				<div class="weui-cell__bd">
+					<span style="vertical-align: middle">时间范围</span>
+				</div>
+				<div class="weui-cell__ft" id="scope"></div>
+			</div>-->
+
+		<div class="weui-cells__title">店铺操作</div>
+		<div class="weui-cell weui-cell_access">
+			<div class="weui-cell__bd">
+				<span style="vertical-align: middle">打烊</span>
+			</div>
+			<div class="" onclick="switchDY()">
+				<label for="switchCP" class="weui-switch-cp">
+					<input id="switchDY" class="weui-switch-cp__input" type="checkbox" checked="checked">
+					<div class="weui-switch-cp__box"></div>
+				</label>
+			</div>
+		</div>
+	</div>
+	<div class="weui-cells__title">密码修改</div>
+	<div class="weui-cells weui-cells_form">
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">原密码</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="password" id="oldPswd" maxlength="16" placeholder="请输入原密码">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">新密码</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="password" id="newPswd" maxlength="16" placeholder="请输入新密码">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">重复新密码</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="password" id="newPswd2" maxlength="16" placeholder="请重复新密码">
+			</div>
+		</div>
+		<div class="weui-btn-area">
+			<a class="weui-btn weui-btn_primary" href="javascript:" onclick="updatePswd()">确定</a>
+		</div>
+	</div>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+
+</body>
+
+</html>

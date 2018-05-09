@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>小商户</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+	<meta name="description" content="国贸商户">
+
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				shopInfo();
+				timerStart();
+			}
+		});
+
+		function HxAppready() {
+			shopInfo();
+			timerStart();
+		}
+
+		var interval;
+
+		//开始定时器[10秒刷新1次]
+		function timerStart() {
+			timerCount();
+			interval = setInterval("timerCount()", "10000");
+		}
+
+		//消息提醒
+		function notice(mesg) {
+			$.notification({
+				title: "来单啦！",
+				text: "您有" + mesg + "个订单待处理",
+				media: "<img src='img/alarm.png'>",
+				data: "jetaime",
+				onClick: function (data) {
+					console.log("Click" + data);
+					window.location.href = "pack.html";
+				},
+				onClose: function (data) {
+					console.log("Close " + data);
+				}
+			});
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		//获取主页信息
+		function shopInfo() {
+			//强制关闭
+			$('#videoId').get(0).pause();
+
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetInfo",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var info = response[0].data;
+						//	console.log(info);
+						$("#name").html(info[0].name);
+						$("#linkName").html(info[0].linkman);
+						$("#address").html(info[0].address);
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//需要定时执行
+		function timerCount() {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetOrderCounts",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var cs = response[0].mesg.split(",");
+						$("#counts").html(cs[0]);
+						$("#counts1").html(cs[1]);
+						$("#counts2").html(cs[2]);
+						$("#counts3").html(cs[3]);
+						if (cs[0] != 0) {
+							$("#counts").show();
+							notice(cs[0]);
+							dingdong();
+						}
+						if (cs[1] != 0) {
+							$("#counts1").show();
+						}
+						if (cs[2] != 0) {
+							$("#counts2").show();
+						}
+						if (cs[3] != 0) {
+							$("#counts3").show();
+						}
+
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		///切换登录
+		function loginOut() {
+			$.confirm("您确定要退出系统吗？", "系统提示", function () {
+				clearInterval(interval);
+				if (isHxApp()) {
+					app_LoginOut();
+				} else {
+					cookieremove("usersafety");
+					window.location.href = "login.html";
+				}
+			}, function () {
+				//取消操作
+			});
+		}
+
+		//响铃
+		function dingdong() {
+			if (isHxApp()) {
+				app_PlaySound();
+			} else {
+				$('#videoId').get(0).play();
+			}
+		}
+	</script>
+</head>
+
+<body ontouchstart>
+	<header class='demos-header'>
+		<h1 class="demos-title" id="name"></h1>
+	</header>
+	<div class="weui-cells">
+		<div class="weui-cell" style="padding:10px 10px">
+			<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+				<img src="img/xm.png" style="width: 50px;display: block">
+			</div>
+			<div class="weui-cell__bd">
+				<p id="linkName"></p>
+				<p id="address" style="font-size: 13px;color: #888888;"></p>
+			</div>
+		</div>
+	</div>
+	<video id="videoId" controls="" autoplay="autoplay" hidden="true" name="media">
+		<source src="http://appser.dtgmzx.cn/mesgCall.mp3" type="audio/mpeg">
+	</video>
+	<!--	<div class="weui-cells__title"></div>-->
+	<div class="weui-grids">
+		<a href="shop.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/shop.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				商家设置
+			</p>
+		</a>
+
+		<a href="shopDay.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/collect.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				今日小报
+			</p>
+		</a>
+		<a href="goods.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/goods.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				商品管理
+			</p>
+		</a>
+		<a href="pack.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/order.png" alt="">
+				<span id="counts" class="weui-badge" style="margin-left: 48px;display: none;"></span>
+			</div>
+			<p class="weui-grid__label">
+				订单打包
+			</p>
+		</a>
+		<a href="selfTake.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/self.png" alt="">
+				<span id="counts1" class="weui-badge" style="margin-left: 48px;display: none;"></span>
+			</div>
+			<p class="weui-grid__label">
+				客户自提
+			</p>
+		</a>
+		<a href="riderTake.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/motorbike.png" alt="">
+				<span id="counts2" class="weui-badge" style="margin-left: 48px;display: none;"></span>
+			</div>
+			<p class="weui-grid__label">
+				自己送货
+			</p>
+		</a>
+		<a href="delivery.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/car.png" alt="">
+				<span id="counts3" class="weui-badge" style="margin-left: 48px;display: none;"></span>
+			</div>
+			<p class="weui-grid__label">
+				平台配送
+			</p>
+		</a>
+		<a href="javascript:loginOut()" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/exit.png" alt="">
+			</div>
+			<p class="weui-grid__label">
+				切换登录
+			</p>
+		</a>
+	</div>
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+
+</body>
+
+</html>

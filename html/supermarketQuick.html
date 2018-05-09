@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>即时配送</title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<meta name="description" content="Wron.">
+		<link rel="stylesheet" href="../lib/weui.min.css">
+		<link rel="stylesheet" href="../css/jquery-weui.css">
+		<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+		<script type="text/javascript" src="js/base.js"></script>
+		<style>
+			.head {
+				height: 3.0rem;
+				line-height: 3.0rem;
+				text-align: center;
+				background-color: #fff;
+				color: #52B3E5;
+				position: relative;
+				font-size: 1.3rem;
+			}
+			
+			.return {
+				font-size: 1.2rem;
+				color: #52B3E5;
+				position: absolute;
+				left: 1rem;
+				top: 0rem;
+			}
+			
+			.search {
+				color: #fff;
+				position: absolute;
+				right: 1rem;
+			}
+		</style>
+		<script>
+			$(document).ready(function() {
+				if(!isUrlHxApp()) {
+					selfInfo();
+					getRefuse();
+				}
+			});
+
+			function HxAppready() {
+				selfInfo();
+				getRefuse();
+			}
+
+			//验证用户身份
+			function IDValid() {
+				if(isBlank(cookieget("usersafety"))) {
+					if(isHxApp()) {
+						app_GoLogin();
+					} else {
+						window.location.href = "login.html";
+					}
+				}
+			}
+
+			function selfInfo() {
+				IDValid();
+				$.showLoading();
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "supermarketRunList",
+					data: {
+						safeCode: cookieget("usersafety"),
+						ifJSD: 1,
+						pageIndex: $("#pageIndex").val()
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function(response) {
+						if("success" == response[0].status) {
+							var list = response[0].data;
+							var oldHead = "";
+							var packsHead = "";
+							var packages = "";
+							var packsShow = "";
+							var packsShowAll = $("#contentList").html();
+							var forCount = 0;
+							for(var i = 0; i < list.length; i++) {
+								if(oldHead != list[i].orderHead) {
+									//这里是一个新的订单 ,纪录头信息,如有信息了就合成
+									if(packsHead.length > 0) {
+										packsShow = "<div id=\"" + oldHead + "\" onclick=\"sign('" + oldHead + "')\">" + packsHead + itemBodyCover(packages) + "</div>";
+										packsShowAll = packsShowAll + packsShow;
+										packages = "";
+										forCount++;
+									}
+									packsHead = itemHead(list[i].orderHead, list[i].Orderid, list[i].cPhone, list[i].cName, list[i].cAddress);
+									packages += itemBody(list[i].packageCode);
+									if(i == list.length - 1) {
+										packsShow = "<div id=\"" + list[i].orderHead + "\" onclick=\"sign('" + list[i].orderHead + "')\">" + packsHead + itemBodyCover(packages) + "</div>";
+										packsShowAll = packsShowAll + packsShow;
+										packsShow = "";
+										packsHead = "";
+										forCount++;
+									}
+									oldHead = list[i].orderHead;
+								} else {
+									//如果是同一个订单的话，则处理包裹
+									packages += itemBody(list[i].packageCode);
+									if(i == list.length - 1) {
+										packsShow = "<div id=\"" + oldHead + "\" onclick=\"sign('" + oldHead + "')\">" + packsHead + itemBodyCover(oldHead, packages) + "</div>";
+										packsShowAll = packsShowAll + packsShow;
+										packsShow = "";
+										packsHead = "";
+										packages = "";
+										forCount++;
+									}
+								}
+							}
+							$("#contentList").html(packsShowAll);
+							if(forCount < 5) {
+								$("#more").hide();
+							}
+						} else {
+							$("#more").hide();
+						}
+						$.hideLoading();
+					},
+					error: function() {
+						$.hideLoading();
+					}
+				})
+			}
+
+			//点击更多
+			function addMore() {
+				$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
+				selfInfo();
+			}
+
+			//订单头信息
+			function itemHead(orderHead, orderID, phone, username, address) {
+				var html = "";
+				html += "<div style=\"background-color: #CCCCCC;\" class=\"weui-cell weui-cell_access\">" +
+					"<div class=\"weui-cell__bd\" style=\"font-weight: bolder;\">" + orderID + "</div>" +
+					"<div class=\"weui-cell__ft\" style=\"font-size: 0\"><span style=\"vertical-align:middle; font-size: 17px;\">" + username + "</span></div></div>" +
+					"<div class=\"weui-cells__title\">" + phone + "</div><div class=\"weui-cells__title\">" + address + "</div>";
+				return html;
+			}
+
+			//订单包裹
+			function itemBody(packCode) {
+				var html = "";
+				html += "<a style=\"\" href=\"#.html\" class=\"weui-grid js_grid\"><div class=\"weui-grid__icon\"><img src=\"img/package.png\" alt=\"\"></div>";
+				html += "<p class=\"weui-grid__label\">" + packCode + "</p></a>";
+				return html;
+			}
+
+			//封装包裹
+			function itemBodyCover(body) {
+				return "<div class=\"weui-grids\">" + body + "</div>";
+			}
+
+			//获取拒绝列表
+			var gridArrayData = []; //预存拒收列表
+			function getRefuse() {
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "supermartetRefuseList",
+					data: {
+						safeCode: cookieget("usersafety")
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function(response) {
+						if("success" == response[0].status) {
+							var list = response[0].data;
+							list.forEach(function(value, index, array) {
+								gridArrayData.push({
+									text: array[index].codeDesc,
+									className: 'color-primary',
+									onClick: function() {
+										chooseRefuse(array[index].fid);
+									}
+								});
+							});
+						}
+					},
+					error: function() {}
+				})
+			}
+
+			function sign(orderHead) {
+				$("#selectOrder").val(orderHead);
+				$.modal({
+					title: orderHead,
+					text: "请与用户核实商品类，并结算订单",
+					buttons: [{
+							text: "拒收",
+							className: "default",
+							onClick: function() {
+								$.actions({
+									title: "【请选择客户拒收的原因】",
+									onClose: function() {
+
+									},
+									actions: gridArrayData
+								});
+							}
+						},
+						{
+							text: "取消",
+							onClick: function() {}
+						},
+						{
+							text: "已送达",
+							onClick: function() {
+								console.log("提交结算：" + orderHead);
+								chooseFinish(orderHead);
+							}
+						},
+					]
+				});
+			}
+
+			//正常用户签收
+			function chooseFinish(orderHead) {
+				if(!isBlank(orderHead)) {
+					jQuery.ajax({
+						type: "get",
+						url: horse_ajax + "suppermarketSign",
+						data: {
+							safeCode: cookieget("usersafety"),
+							orderHead: orderHead
+						},
+						dataType: "jsonp",
+						crossDomain: true,
+						success: function(response) {
+
+							if("success" == response[0].status) {
+								$("#" + orderHead).remove();
+							}
+							$.alert(response[0].mesg, "");
+						},
+						error: function() {
+
+						}
+					})
+				}
+			}
+
+			function chooseRefuse(code) {
+				if(!isBlank($("#selectOrder").val()) && !isBlank(code)) {
+					jQuery.ajax({
+						type: "get",
+						url: horse_ajax + "supermarketRefuse",
+						data: {
+							safeCode: cookieget("usersafety"),
+							orderHead: $("#selectOrder").val(),
+							refuseID: code
+						},
+						dataType: "jsonp",
+						crossDomain: true,
+						success: function(response) {
+							if("success" == response[0].status) {
+								$("#" + $("#selectOrder").val()).remove();
+							}
+							$.alert(response[0].mesg, "");
+						},
+						error: function() {
+
+						}
+					})
+				}
+			}
+		</script>
+	</head>
+
+	<body ontouchstart>
+		<input type="hidden" id="pageIndex" value="1" />
+		<input type="hidden" id="selectOrder" />
+		<!--拒收订单的订单头-->
+
+		<div class="head" onclick="myBack('supermarketHome.html')">
+			<a href="javascript:javascript:" onclick="myBack('supermarketHome.html')" class="return">〈</a>
+			即时配送
+			<a href="javascript:javascript:" onclick="myBack('supermarketHome.html')" class="search"></a>
+		</div>
+
+		<div class="weui-cells" id="contentList">
+			<!--<div id="H180313857134" onclick="sign('H180313857134')">
+            <div style="background-color: #CCCCCC;" class="weui-cell weui-cell_access">
+                <div id="H180313857134" class="weui-cell__bd" style="font-weight: bolder;">
+                    H180313857134</div>
+                <div class="weui-cell__ft" style="font-size: 0">
+                    <span style="vertical-align: middle; font-size: 17px;">jet@ime</span></div>
+            </div>
+            <div class="weui-cells__title">
+                18952760619</div>
+            <div class="weui-cells__title">
+                测试区测试街道X-1102号</div>
+            <div class="weui-grids">
+                <a href="javascript:" class="weui-grid js_grid" style="background-color: ">
+                    <div class="weui-grid__icon">
+                        <img src="img/package.png" alt=""></div>
+                    <p class="weui-grid__label" style="font-size: 21px; color: ">
+                        S00002</p>
+                </a><a href="javascript:" class="weui-grid js_grid" style="background-color: ">
+                    <div class="weui-grid__icon">
+                        <img src="img/package.png" alt=""></div>
+                    <p class="weui-grid__label" style="font-size: 21px; color: ">
+                        S00003</p>
+                </a>
+            </div>
+        </div>
+        <div>
+            <div id="H180313857137" onclick="sign('H180313857137')">
+                <div style="background-color: #CCCCCC;" class="weui-cell weui-cell_access">
+                    <div id="H180313857137" class="weui-cell__bd" style="font-weight: bolder;">
+                        H180313857137</div>
+                    <div class="weui-cell__ft" style="font-size: 0">
+                        <span style="vertical-align: middle; font-size: 17px;">jet@ime</span></div>
+                </div>
+                <div class="weui-cells__title">
+                    18952760619</div>
+                <div class="weui-cells__title">
+                    广陵区沙湾路江广智慧11-3</div>
+                <div class="weui-grids">
+                    <a href="javascript:" class="weui-grid js_grid" style="background-color: ">
+                        <div class="weui-grid__icon">
+                            <img src="img/package.png" alt=""></div>
+                        <p class="weui-grid__label" style="font-size: 21px; color: ">
+                            X00001</p>
+                    </a>
+                </div>
+            </div>
+        </div>-->
+		</div>
+		<div id="more" class="weui-form-preview__ft">
+			<a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:addMore()">
+				点击更多</a>
+		</div>
+		<div class="weui-loadmore">
+			<i class="weui-loading"></i><span class="weui-loadmore__tips">正在加载</span>
+		</div>
+		<script src="../lib/fastclick.js"></script>
+		<script type="text/javascript" src="../js/jquery-weui.min.js"></script>
+		<script>
+			$(function() {
+				FastClick.attach(document.body);
+			});
+
+			$(".weui-loadmore").hide();
+
+			var loading = false;
+			$(document.body).infinite().on("infinite", function() {
+				if(loading)
+					return;
+				loading = true;
+				setTimeout(function() {
+					//TO DO SOMETHING  这里是需要你去做的业务层
+					console.log("ajax请求数据中...")
+					loading = false;
+				}, 1000);
+			});
+		</script>
+	</body>
+
+</html>

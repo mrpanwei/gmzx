@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>deliveryInfo</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+	<meta name="description" content="Write an awesome description for your new  in your document head meta">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<style>
+		/*æ—¶é—´çº¿*/
+
+		.timeline {
+			padding: 1rem;
+		}
+
+		.timeline p {
+			color: #888;
+			font-size: 0.8rem;
+		}
+
+		.timeline h4 {
+			color: #666;
+			font-weight: 400;
+		}
+
+		.timeline .recent {
+			color: #18b4ed;
+		}
+
+		.timeline ul li {
+			list-style: outside none none;
+		}
+
+		.timeline-item {
+			position: relative;
+		}
+
+		.timeline-item-content {
+			padding: 0 0 1.5rem 1.2rem;
+		}
+
+		.timeline-item-head,
+		.timeline-item-head-first {
+			border-radius: 99px;
+			content: "";
+			position: absolute;
+			z-index: 99;
+			background-color: #04be02;
+		}
+
+		.timeline-item-head {
+			height: 10px;
+			left: 1px;
+			top: 4px;
+			width: 10px;
+		}
+
+		.timeline-item-head-first {
+			height: 20px;
+			left: -4px;
+			top: 5px;
+			width: 20px;
+		}
+
+		.timeline-item-tail {
+			content: "";
+			background-color: #04be02;
+			height: 100%;
+			left: 5px;
+			position: absolute;
+			top: 5px;
+			width: 2px;
+		}
+
+		.timeline-item-checked {
+			left: 0;
+			position: absolute;
+			top: 45%;
+			transform: translateY(-50%);
+			width: 100%;
+		}
+
+		.timeline-item-checked::before {
+			color: #fff;
+			font-size: 12px;
+			width: 20px;
+		}
+	</style>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				deliveryInfo();
+			}
+		});
+
+		function HxAppready() {
+			deliveryInfo();
+		}
+
+		//物流信息详情
+		function deliveryInfo() {
+			var oid = getUrlParam('oid');
+			if (isBlank(oid)) {
+				window.location.href = "delivery.html";
+				return;
+			}
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetOrderLogisticsInfo",
+				data: {
+					safeCode: cookieget("usersafety"),
+					orderHead: oid
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						console.log(list);
+						$("#orderHead").html(oid);
+						$("#riderInfo").html("骑手：" + list[0].name + ",手机：" + list[0].phone);
+						if (!isBlank(list[0].askDate)) {
+							$("#step1").attr("class", "recent");
+							$("#step1Date").attr("class", "recent");
+							$("#step1Date").html(list[0].askDate);
+						}
+						if (!isBlank(list[0].answerDate)) {
+							$("#step2").attr("class", "recent");
+							$("#step2Date").attr("class", "recent");
+							$("#step2Date").html(list[0].answerDate);
+						}
+						if (!isBlank(list[0].takeDate)) {
+							$("#step3").attr("class", "recent");
+							$("#step3Date").attr("class", "recent");
+							$("#step3Date").html(list[0].takeDate);
+						}
+						if (!isBlank(list[0].finishDate)) {
+							$("#step4").attr("class", "recent");
+							$("#step4Date").attr("class", "recent");
+							$("#step4Date").html(list[0].finishDate);
+						}
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+	</script>
+
+</head>
+
+<body ontouchstart>
+
+
+	<div class="head" onclick="myBack('home.html')">
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+		配送详情
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+	</div>
+
+
+
+
+	<div class="weui-cells__title" id="orderHead"></div>
+	<div class="weui-cells__title" id="riderInfo"></div>
+	<div class="timeline">
+		<ul>
+			<li class="timeline-item">
+				<div class="timeline-item-head-first">
+					<i class="weui_icon weui_icon_success_no_circle timeline-item-checked"></i>
+				</div>
+				<div class="timeline-item-tail"></div>
+				<div class="timeline-item-content">
+					<h4 class="" id="step1">平台调度中</h4>
+					<p class="" id="step1Date"></p>
+				</div>
+			</li>
+			<li class="timeline-item">
+				<div class="timeline-item-head">
+					<i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide"></i>
+				</div>
+				<div class="timeline-item-tail"></div>
+				<div class="timeline-item-content">
+					<h4 class="" id="step2">骑手已接单</h4>
+					<p class="" id="step2Date">...</p>
+				</div>
+			</li>
+			<li class="timeline-item">
+				<div class="timeline-item-head">
+					<i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide"></i>
+				</div>
+				<div class="timeline-item-tail"></div>
+				<div class="timeline-item-content">
+					<h4 class="" id="step3">骑手已取货,正在为您派送中</h4>
+					<p class="" id="step3Date">...</p>
+				</div>
+			</li>
+			<li class="timeline-item">
+				<div class="timeline-item-head">
+					<i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide"></i>
+				</div>
+				<div class="timeline-item-tail hide"></div>
+				<div class="timeline-item-content">
+					<h4 id="step4">商品已送达</h4>
+					<p id="step4Date">...</p>
+				</div>
+			</li>
+		</ul>
+	</div>
+
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+
+</body>
+
+</html>

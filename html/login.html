@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+		<meta name="description" content="Write an awesome">
+		<link rel="stylesheet" href="../css/weui.css" />
+		<link rel="stylesheet" href="../css/weui2.css" />
+		<link rel="stylesheet" href="../css/weui3.css" />
+
+		<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+		<script type="text/javascript" src="js/base.js"></script>
+		<script>
+			function login() {
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "appLogin",
+					data: {
+						code: $("#phone").val(),
+						codeKey: $("#pswd").val()
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function(response) {
+						if("success" == response[0].status) {
+							var info = response[0].data;
+							cookiesetset('usersafety', info[0].safeCode);
+							if(1 == info[0].style) {
+								window.location.href = "home.html";
+							} else if(2 == info[0].style) {
+								cookiesetset('lineGroup', info[0].lineGroup);
+								window.location.href = "_home.html";
+							} else if(4 == info[0].style) {
+								cookiesetset('lineGroup', info[0].lineGroup);
+								window.location.href = "supermarketHome.html";
+							}
+						} else {
+							alert('用户名或密码错误', "")
+						}
+					},
+					error: function() {}
+				})
+			}
+		</script>
+
+	</head>
+
+	<body ontouchstart>
+
+		<div class="weui_grids">
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					我
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					是
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					一
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					只
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					小
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					猫
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					咪
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					啊
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					咿
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					呀
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					咿
+				</p>
+			</a>
+			<a href="javascript:;" class="weui_grid js_grid">
+				<div class="weui_grid_icon">
+					<img src="img/bike.png" alt="">
+				</div>
+				<p class="weui_grid_label">
+					哟
+				</p>
+			</a>
+			
+		</div>
+		<form id="form">
+			<div class="weui_cells weui_cells_form">
+
+				<div class="weui_cell">
+					<div class="weui_cell_hd"><label class="weui_label">账号</label></div>
+					<div class="weui_cell_bd weui_cell_primary">
+						<input id="phone" class="weui_input" type="text" value="S00001" required="" pattern="[0-9]{11}" maxlength="11" placeholder="" emptytips="" notmatchtips="">
+					</div>
+					<div class="weui_cell_ft">
+						<i class="weui_icon_warn"></i>
+					</div>
+				</div>
+				<div class="weui_cell">
+					<div class="weui_cell_hd"><label class="weui_label">密码</label></div>
+					<div class="weui_cell_bd weui_cell_primary">
+						<input id="pswd" class="weui_input" type="tel" value="123456" required="" pattern="[0-9]{11}" maxlength="11" placeholder="" emptytips="" notmatchtips="">
+					</div>
+					<div class="weui_cell_ft">
+						<i class="weui_icon_warn"></i>
+					</div>
+				</div>
+				<!--<div class="weui_cell weui_vcode">
+					<div class="weui_cell_hd"><label class="weui_label">密码</label></div>
+					<div class="weui_cell_bd weui_cell_primary">
+						<input id="pswd" class="weui_input" type="number" required="" placeholder="" tips="" value="123456">
+					</div>
+					<div class="weui_cell_ft">
+						<i class="weui_icon_warn"></i>
+						<a href="javascript:;" class="weui-vcode-btn">获取验证码</a>
+					</div>
+				</div>-->
+			</div>
+			<div class="weui_btn_area">
+				<a id="formSubmitBtn" href="javascript:login()" class="weui_btn weui_btn_primary">登 录</a>
+			</div>
+		</form>
+
+	</body>
+
+</html>

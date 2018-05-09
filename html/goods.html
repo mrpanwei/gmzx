@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>商品管理</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+	<meta name="description" content="Write an awesome descrip">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/weui.css" />
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script type="text/javascript" src="../js/jquery-weui.js"></script>
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="js/base.js"></script>
+
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				dayInfo();
+				keyband();
+			}
+		});
+
+		function HxAppready() {
+			dayInfo();
+			keyband();
+		}
+
+		function keyband() {
+			var last;
+			$("#goodsName").keyup(function (event) { //.input为你的输入框
+				last = event.timeStamp;
+				//利用event的timeStamp来标记时间，这样每次的keyup事件都会修改last的值，注意last必需为全局变量
+				setTimeout(function () { //设时延迟0.5s执行
+					if (last - event.timeStamp == 0)
+					//如果时间差为0（也就是你停止输入0.5s之内都没有其它的keyup事件发生）则做你想要做的事
+					{
+						cbSelect();
+					}
+				}, 700);
+			});
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		function dayInfo() {
+			IDValid();
+			var getStatus = "off";
+			if ($("#saleStatus").prop("checked") == true) {
+				getStatus = "on";
+			}
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetGoods",
+				data: {
+					safeCode: cookieget("usersafety"),
+					goodsName: $("#goodsName").val(),
+					saleStatus: getStatus,
+					pageIndex: $("#pageIndex").val()
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var info = response[0].data;
+						var thisHtml = "";
+						var forCount = 0;
+						info.forEach(function (value, index, array) {
+							forCount++;
+							//								console.log(array[index]);
+							thisHtml += itemMake(array[index].sp_id, array[index].sp_name, array[index].sp_tiaoma, array[index].sp_img_url, array[index].sp_xs_jia, array[index].sp_dawei, array[index].flag);
+						});
+						$("#contentList").append(thisHtml);
+						if (forCount < 5) {
+							$("#more").hide();
+						}
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//点击更多
+		function addMore() {
+			$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
+			dayInfo();
+		}
+
+		//选择上下架商品
+		function cbSelect() {
+			$("#contentList").html("");
+			$("#pageIndex").val("1");
+			dayInfo();
+		}
+
+		//商品上下架操作
+		function cbItemSelect(obj) {
+			var getStatus = "off";
+			if ($("#" + obj).prop("checked") == true) {
+				getStatus = "on";
+			}
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerSetGoodsStatus",
+				data: {
+					safeCode: cookieget("usersafety"),
+					goodsID: obj,
+					saleStatus: getStatus
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var info = response[0].data;
+						$.toast(response[0].mesg, "success");
+					} else {
+						$.toast(response[0].mesg, "forbidden");
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+
+		}
+
+		function itemMake(sp_id, sp_name, sp_tiaoma, sp_img_url, sp_xs_jia, sp_dawei, flag) {
+			var html = "";
+			html += "<a href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">";
+			html += "<div class=\"weui-media-box__hd\">";
+			html += "<img class=\"weui-media-box__thumb\" src=\"http://img.554488.com/normal/" + sp_img_url + "\" alt=\"\">";
+			html += "</div>";
+			html += "<div class=\"weui-media-box__bd\">";
+			html += "<h4 class=\"weui-media-box__title\">";
+			html += sp_name;
+			html += "<span class=\"weui-media-box__title-after\">¥" + sp_xs_jia + "/" + sp_dawei + "</span>";
+			html += "</h4>";
+			html += "<p class=\"weui-media-box__desc\">" + sp_tiaoma + "</p>";
+			html += "</div>";
+			if ("11" == flag) {
+				html += "<input id=\"" + sp_id + "\" onchange=\"cbItemSelect('" + sp_id + "')\" class=\"weui-switch\" type=\"checkbox\" checked=\"checked\">";
+			} else {
+				html += "<input  id=\"" + sp_id + "\"  onchange=\"cbItemSelect('" + sp_id + "')\" class=\"weui-switch\" type=\"checkbox\">";
+			}
+			html += "</a>";
+			return html;
+		}
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+</head>
+
+<body ontouchstart>
+	<input type="hidden" id="pageIndex" value="1" />
+
+
+	<div class="head" onclick="myBack('home.html')">
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+		商品管理
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+	</div>
+
+
+	<div class="weui-search-bar" id="searchBar">
+		<form class="weui-search-bar__form" action="#">
+			<div class="weui-search-bar__box">
+				<i class="weui-icon-search"></i>
+				<input type="search" class="weui-search-bar__input" id="goodsName" placeholder="搜索" required="">
+				<a href="javascript:cbSelect()" class="weui-icon-clear" id="searchClear"></a>
+			</div>
+			<label class="weui-search-bar__label" id="searchText" style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
+				<i class="weui-icon-search"></i>
+				<span>请输入商品名称</span>
+			</label>
+		</form>
+		<a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
+	</div>
+
+	<div class="weui-panel weui-panel_access">
+		<div class="weui-cell weui-cell_switch">
+			<div class="weui-cell__bd">商品（上下架）状态</div>
+			<div class="weui-cell__ft">
+				<input class="weui-switch" type="checkbox" onchange="cbSelect()" checked="checked" id="saleStatus">
+			</div>
+		</div>
+		<div class="weui-panel__bd" id="contentList">
+		</div>
+	</div>
+	<div id="more" class="weui-form-preview__ft">
+		<a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:addMore()">点击更多</a>
+	</div>
+
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+
+</body>
+
+</html>

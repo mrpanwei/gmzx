@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>骑手(超市管理员)</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Write.xml site description.">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				smInfo();
+			}
+		});
+
+		function HxAppready() {
+			smInfo();
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		//页面初始化
+		function smInfo() {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "smInfo",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						var info = list.Table;
+						//							console.log(info);
+						$("#name").html(info[0].name);
+						$("#phone").html(info[0].phone);
+						//统计信息
+						var collect = list.Table1;
+						if (collect.length > 0) {
+							$("#countsSign").html(collect[0].sign);
+							$("#countsSelfTake").html(collect[0].selfTake);
+							$("#countsNormal").html(collect[0].normal);
+							$("#countsQuick").html(collect[0].quick);
+							if (collect[0].sign == "0") { $("#countsSign").hide(); }
+							if (collect[0].selfTake == "0") { $("#countsSelfTake").hide(); }
+							if (collect[0].normal == "0") { $("#countsNormal").hide(); }
+							if (collect[0].quick == "0") { $("#countsQuick").hide(); }
+						}
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		///切换登录
+		function loginOut() {
+			$.confirm("您确定要退出系统吗？", "系统提示", function () {
+				if (isHxApp()) {
+					app_LoginOut();
+				} else {
+					cookieremove("usersafety");
+					window.location.href = "login.html";
+				}
+			}, function () {
+				//取消操作
+			});
+		}
+	</script>
+</head>
+
+<body ontouchstart>
+
+	<header class='demos-header'>
+		<h1 class="demos-title" style="color: #E15240;">超市骑手</h1>
+	</header>
+	<div class="weui-cells">
+		<div class="weui-cell" style="padding:10px 10px">
+			<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+				<img src="img/location.png" style="width: 50px;display: block">
+			</div>
+			<div class="weui-cell__bd">
+				<p id="name"></p>
+				<p id="phone" style="font-size: 13px;"></p>
+			</div>
+		</div>
+	</div>
+
+	<div class="weui-grids">
+		<a href="supermarketSign.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/sign.png" alt="">
+				<span id="countsSign" class="weui-badge" style="margin-left: 48px;"></span>
+			</div>
+			<p class="weui-grid__label">
+				签收
+			</p>
+		</a>
+		<a href="supermarketSelfTake.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/self.png" alt="">
+				<span id="countsSelfTake" class="weui-badge" style="margin-left: 48px;"></span>
+			</div>
+			<p class="weui-grid__label">
+				自提
+			</p>
+		</a>
+		<a href="supermarketNormal.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/bike.png" alt="">
+				<span id="countsNormal" class="weui-badge" style="margin-left: 48px;"></span>
+			</div>
+			<p class="weui-grid__label">
+				普通配送
+			</p>
+		</a>
+		<a href="supermarketQuick.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/motorbike-red.png" alt="">
+				<span id="countsQuick" class="weui-badge" style="margin-left: 48px;"></span>
+			</div>
+			<p class="weui-grid__label">
+				即时派送
+			</p>
+		</a>
+		<a href="javascript:loginOut()" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/ico-exit.png" alt="">
+
+			</div>
+			<p class="weui-grid__label">
+				退出
+			</p>
+		</a>
+	</div>
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+
+</body>
+
+</html>

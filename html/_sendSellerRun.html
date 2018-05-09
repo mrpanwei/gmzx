@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>sendRun</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Write.xml site description.">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				readyInfo();
+				getRefuse();
+			}
+		});
+
+		function HxAppready() {
+			readyInfo();
+			getRefuse();
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		//预存拒收列表
+		var gridArrayData = [];
+
+		//获取拒绝列表
+		function getRefuse() {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderRefuseList",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						list.forEach(function (value, index, array) {
+							gridArrayData.push({
+								text: array[index].codeDesc,
+								className: 'color-primary',
+								onClick: function () {
+									chooseRefuse(array[index].fid);
+								}
+							});
+						});
+					}
+				},
+				error: function () { }
+			})
+		}
+
+		//拒收处理事件
+		function chooseRefuse(code) {
+			if (!isBlank($("#selectOrder").val()) && !isBlank(code)) {
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "riderLogisticsRefuse",
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderHead: $("#selectOrder").val(),
+						refuseID: code
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						$.alert(response[0].mesg, "");
+						if (response[0].status == "success") {
+							$("#" + $("#selectOrder").val()).remove();
+						}
+						readyInfo();
+					},
+					error: function () {
+
+					}
+				})
+			}
+		}
+
+		function chooseFinish(obj) {
+			if (!isBlank($("#selectOrder").val())) {
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "riderLogisticsFinish",
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderHead: $("#selectOrder").val()
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						$.alert(response[0].mesg, "");
+						if (response[0].status == "success") {
+							$("#" + $("#selectOrder").val()).remove();
+							readyInfo();
+						}
+
+					},
+					error: function () {
+
+					}
+				})
+			}
+		}
+
+		function readyInfo() {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderLogisticsSellerRun",
+				data: {
+					safeCode: cookieget("usersafety"),
+					pageIndex: $("#pageIndex").val()
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						console.log(list);
+						var oldHead = "";
+						var packsHead = "";
+						var packages = "";
+						var packsShow = "";
+						var packsShowAll = "";
+						var forCount = 0;
+						list.forEach(function (value, index, array) {
+							forCount++;
+							if (oldHead != array[index].orderHead) {
+								if (packsHead.length > 0) {
+									packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+									packsShowAll = packsShowAll + packsShow;
+									packages = "";
+								}
+								packsHead = headMake(array[index].orderHead, array[index].cName, array[index].cPhone, array[index].cAddress, array[index].requireDate);
+								packages += bodyMake(array[index].sp_short_name, array[index].num);
+								if (index == array.length - 1) {
+									packsShow = packsHead + packages;
+									packsShowAll = packsShowAll + packsShow;
+									packsShow = "";
+									packsHead = "";
+								}
+								oldHead = array[index].orderHead;
+							} else {
+								packages += bodyMake(array[index].sp_short_name, array[index].num);
+								if (index == array.length - 1) {
+									packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+									packsShowAll = packsShowAll + packsShow;
+									packsShow = "";
+									packsHead = "";
+									packages = "";
+								}
+							}
+						});
+						$("#contentList").append(packsShowAll);
+						if (forCount < 5) {
+							$("#more").hide();
+						}
+					} else {
+						$("#more").hide();
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//点击更多
+		function addMore() {
+			$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
+			readyInfo();
+		}
+
+		function finishTask(obj) {
+			$("#selectOrder").val(obj);
+			$.modal({
+				title: obj,
+				text: "是否送达?",
+				buttons: [{
+					text: "拒收",
+					className: "default",
+					onClick: function () {
+						$.actions({
+							title: "【请选择客户拒收的原因】",
+							onClose: function () {
+
+							},
+							actions: gridArrayData
+						});
+					}
+				},
+				{
+					text: "取消",
+					onClick: function () { }
+				},
+				{
+					text: "签收",
+					onClick: function () {
+						chooseFinish(obj);
+					}
+				},
+				]
+			});
+		}
+
+		function headMake(orderHead, cName, cPhone, cAddress, requireDate) {
+			var html = "";
+			html += "<div id=\"" + orderHead + "\">";
+			html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"finishTask('" + orderHead + "')\">";
+			html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
+			html += "<img src=\"img/sclient.png\" style=\"width: 50px;display: block\">";
+			html += "</div>";
+			html += "<div class=\"weui-cell__bd\" style=\"color:white;\">";
+			html += "<p>" + cName + "，" + cPhone + "</p>";
+			html += "<p style=\"font-size: 13px;\">" + cAddress + "</p>";
+			html += "</div>";
+			html += "</div>";
+			html += "<div class=\"weui-cells__title\" style=\"font-size: 18px;color: #19A160;\">请于" + requireDate + "之前送到</div>";
+			html += "<div>";
+			return html;
+		}
+
+		function bodyMake(sp_short_name, num) {
+			var html = "";
+			html += "<div class=\"weui-cell\">";
+			html += "<div class=\"weui-cell__hd\"><img src=\"img/sgood.png\" alt=\"\" style=\"width:20px;margin-right:5px;display:block\"></div>";
+			html += "<div class=\"weui-cell__bd\">";
+			html += "<p>" + sp_short_name + "</p>";
+			html += "</div>";
+			html += "<div class=\"weui-cell__ft\">" + num + "</div>";
+			html += "</div>";
+			return html;
+		}
+
+		function footMake(name, address, cRemark) {
+			var html = "";
+			html += "</div><div class=\"weui-cells__title\">" + name + " / " + address + " / " + cRemark + "</div></div>";
+			return html;
+		}
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #13227A;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #13227A;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+</head>
+
+<body ontouchstart>
+	<input type="hidden" id="pageIndex" value="1" />
+
+
+	<div class="head" onclick="myBack('_deliverySeller.html')">
+		<a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="return">〈</a>
+		待收货
+		<a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="search"></a>
+	</div>
+
+
+
+
+	<div class="weui-cells" id="contentList">
+	</div>
+	<div id="more" class="weui-form-preview__ft">
+		<a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:addMore()">
+			点击更多</a>
+	</div>
+	<input type="hidden" id="selectOrder" />
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>平台配送</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Write an awesome description for your new  in your document head meta">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				delivery();
+			}
+		});
+
+		function HxAppready() {
+			delivery();
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		//加载页面数据
+		function delivery() {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetOrderLogistics",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						console.log(list);
+						var htmlAll = "";
+						for (var i = 0; i < list.length; i++) {
+							htmlAll = htmlAll + createItem(list[i].dealFlag, list[i].orderHead, list[i].cAddress, list[i].sendType);
+						}
+						$("#list").html(htmlAll);
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//返回图片
+		function callBackImg(dealFlag) {
+			if (2 == dealFlag || 22 == dealFlag) {
+				return "img/s_ready.png";
+			} else if (3 == dealFlag) {
+				return "img/s_running.png";
+			} else if (4 == dealFlag) {
+				return "img/s_arrive.png";
+			} else {
+				return "img/s_ready.png";
+			}
+		}
+
+		//返回配送方式
+		function callBackSend(dealFlag) {
+			if (2 == dealFlag) {
+				return "待接单";
+			} else if (22 == dealFlag) {
+				return "已接单";
+			} else if (3 == dealFlag) {
+				return "已取货";
+			} else {
+				return "已送达";
+			}
+		}
+
+		//创建物流列表
+		function createItem(dealFlag, orderHead, cAddress, sendType) {
+			sendType = callBackSend(dealFlag);
+			dealFlag = callBackImg(dealFlag);
+			var html = "";
+			html += "<a href=\"javascript:showList('" + orderHead + "');\" class=\"weui-media-box weui-media-box_appmsg\">";
+			html += "<div class=\"weui-media-box__hd\">";
+			html += "<img class=\"weui-media-box__thumb\" src=\"" + dealFlag + "\" alt=\"\">";
+			html += "</div>";
+			html += "<div class=\"weui-media-box__bd\">";
+			html += "<h4 class=\"weui-media-box__title\">";
+			html += orderHead;
+			html += "<span class=\"weui-media-box__title-after\" style=\"color: ;\">" + sendType + "</span>";
+			html += "</h4>";
+			html += "<p class=\"weui-media-box__desc\">" + cAddress + "</p>";
+			html += "</div>";
+			html += "</a>"
+			return html;
+		}
+
+		//准备跳转显示
+		function showList(orderHead) {
+			window.location.href = "deliveryInfo.html?oid=" + orderHead;
+		}
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+</head>
+
+<body ontouchstart>
+	<div class="weui-pull-to-refresh__layer">
+		<div class='weui-pull-to-refresh__arrow'>
+		</div>
+		<div class='weui-pull-to-refresh__preloader'>
+		</div>
+		<div class="down">
+			下拉刷新</div>
+		<div class="up">
+			释放刷新</div>
+		<div class="refresh">
+			正在刷新</div>
+	</div>
+
+
+	<div class="head" onclick="myBack('home.html')">
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+		平台配送
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+	</div>
+
+
+
+	<div class="weui-panel weui-panel_access">
+		<div id="list" class="weui-panel__bd">
+			<!--<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+					<div class="weui-media-box__hd">
+						<img class="weui-media-box__thumb" src="img/s_ready.png" alt="">
+
+					</div>
+					<div class="weui-media-box__bd">
+						<h4 class="weui-media-box__title">
+                18003130056201
+                <span class="weui-media-box__title-after" style="color: ;">平台送</span>
+              </h4>
+						<p class="weui-media-box__desc">广陵区沙湾路声谷产业园2期11号楼E座3F</p>
+					</div>
+				</a>
+
+				<a href="deliveryInfo.html" class="weui-media-box weui-media-box_appmsg">
+					<div class="weui-media-box__hd">
+						<img class="weui-media-box__thumb" src="img/s_running.png" alt="">
+
+					</div>
+					<div class="weui-media-box__bd">
+						<h4 class="weui-media-box__title">
+                18003103843436
+                <span class="weui-media-box__title-after" style="color: ;">平台送</span>
+              </h4>
+						<p class="weui-media-box__desc">广陵区秦邮路12-2(车管所对面)</p>
+					</div>
+				</a>
+
+				<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+					<div class="weui-media-box__hd">
+						<img class="weui-media-box__thumb" src="img/s_running.png" alt="">
+
+					</div>
+					<div class="weui-media-box__bd">
+						<h4 class="weui-media-box__title">
+                18003103809822
+                <span class="weui-media-box__title-after" style="color: ;">平台送</span>
+              </h4>
+						<p class="weui-media-box__desc">江都区长江东路国际汽配城</p>
+					</div>
+				</a>
+
+				<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+					<div class="weui-media-box__hd">
+						<img class="weui-media-box__thumb" src="img/s_arrive.png" alt="">
+
+					</div>
+					<div class="weui-media-box__bd">
+						<h4 class="weui-media-box__title">
+                18003140964120
+                <span class="weui-media-box__title-after" style="color: ;">自配送</span>
+              </h4>
+						<p class="weui-media-box__desc">江都区江淮路19号宏信龙超市新村店</p>
+					</div>
+				</a>-->
+		</div>
+	</div>
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+
+			$(document.body).pullToRefresh(function () {
+				setTimeout(function () {
+					//业务代码 begin
+					delivery();
+					//业务代码 end
+					$(document.body).pullToRefreshDone();
+				}, 500);
+			});
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+</body>
+
+</html>

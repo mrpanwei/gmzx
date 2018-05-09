@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>商户即时派送</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Wri">
+    <link rel="stylesheet" href="../lib/weui.min.css">
+    <link rel="stylesheet" href="../css/jquery-weui.css">
+    <link rel="stylesheet" href="../css/demos.css">
+    <script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/base.js"></script>
+    <script>
+        $(document).ready(function () {
+            if (!isUrlHxApp()) {
+                collectInfo();
+            }
+        });
+
+        function HxAppready() {
+            collectInfo();
+        }
+
+        //验证用户身份
+        function IDValid() {
+            if (isBlank(cookieget("usersafety"))) {
+                if (isHxApp()) {
+                    app_GoLogin();
+                } else {
+                    window.location.href = "login.html";
+                }
+            }
+        }
+
+        function collectInfo() {
+            IDValid();
+            $.showLoading();
+            jQuery.ajax({
+                type: "get",
+                url: horse_ajax + "riderLogisticsSeller",
+                data: {
+                    safeCode: cookieget("usersafety")
+                },
+                dataType: "jsonp",
+                crossDomain: true,
+                success: function (response) {
+                    if ("success" == response[0].status) {
+                        var list = response[0].data;
+                        console.log(list)
+                        if (0 != list[0].ready) {
+                            $("#c1").html(list[0].ready);
+                            $("#c1").show();
+                        }
+                        if (0 != list[0].beforerun) {
+                            $("#c2").html(list[0].beforerun);
+                            $("#c2").show();
+                        }
+                        if (0 != list[0].run) {
+                            $("#c3").html(list[0].run);
+                            $("#c3").show();
+                        }
+                        if (0 != list[0].arrive) {
+                            $("#c4").html(list[0].arrive);
+                            $("#c4").show();
+                        }
+                    }
+                    $.hideLoading();
+                },
+                error: function () {
+                    $.hideLoading();
+                }
+            })
+        }
+    </script>
+    <style>
+        .head {
+            height: 3.0rem;
+            line-height: 3.0rem;
+            text-align: center;
+            background-color: #fff;
+            color: #13227A;
+            position: relative;
+            font-size: 1.3rem;
+        }
+
+        .return {
+            font-size: 1.2rem;
+            color: #13227A;
+            position: absolute;
+            left: 1rem;
+            top: 0rem;
+        }
+
+        .search {
+            color: #fff;
+            position: absolute;
+            right: 1rem;
+        }
+    </style>
+</head>
+
+<body ontouchstart>
+
+
+    <div class="head" onclick="myBack('_home.html')">
+		<a href="javascript:javascript:"  onclick="myBack('_home.html')" class="return">〈</a>
+		商户即时派送
+		<a href="javascript:javascript:"  onclick="myBack('_home.html')" class="search"></a>
+	</div>
+
+
+
+
+    <div class="weui-grids">
+        <a href="_sendSellerReady.html" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <img src="img/swait.png" alt="">
+                <span id="c1" class="weui-badge" style="margin-left: 45px; background-color: #13227A;
+                    display: none;"></span>
+            </div>
+            <p class="weui-grid__label">
+                待受理
+            </p>
+        </a>
+        <a href="_sendBeforeSellerRun.html" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <img src="img/beforeRun.png" alt="">
+                <span id="c2" class="weui-badge" style="margin-left: 45px; background-color: #13227A;
+                    display: none;"></span>
+            </div>
+            <p class="weui-grid__label">
+                待取货
+            </p>
+        </a>
+        <a href="_sendSellerRun.html" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <img src="img/sget.png" alt="">
+                <span id="c3" class="weui-badge" style="margin-left: 45px; background-color: #13227A;
+                    display: none;"></span>
+            </div>
+            <p class="weui-grid__label">
+                配送中
+            </p>
+        </a>
+        <a href="_sendSellerArrive.html" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <img src="img/sarrive.png" alt="">
+                <span id="c4" class="weui-badge" style="margin-left: 45px; background-color: #13227A;
+                    display: none;"></span>
+            </div>
+            <p class="weui-grid__label">
+                已送达
+            </p>
+        </a>
+    </div>
+    <script src="../lib/jquery-2.1.4.js"></script>
+    <script src="../lib/fastclick.js"></script>
+    <script>
+        $(function () {
+            FastClick.attach(document.body);
+        });
+    </script>
+    <script src="../js/jquery-weui.js"></script>
+</body>
+
+</html>

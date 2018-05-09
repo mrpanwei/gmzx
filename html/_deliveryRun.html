@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>delivery</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Write an cription.">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				readyInfo();
+				getRefuse();
+			}
+		});
+
+		function HxAppready() {
+			readyInfo();
+			getRefuse();
+		}
+
+		//预存拒收列表
+		var gridArrayData = [];
+
+		//获取拒绝列表
+		function getRefuse() {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderRefuseList",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						list.forEach(function (value, index, array) {
+							gridArrayData.push({
+								text: array[index].codeDesc,
+								className: 'color-primary',
+								onClick: function () {
+									chooseRefuse(array[index].fid);
+								}
+							});
+						});
+					}
+				},
+				error: function () { }
+			})
+		}
+
+		//拒收处理事件
+		function chooseRefuse(code) {
+			if (!isBlank($("#selectOrder").val()) && !isBlank(code)) {
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "riderLineRefusePackage",
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderHead: $("#selectOrder").val(),
+						refuseID: code
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						$.alert(response[0].mesg, "");
+						if (response[0].status == "success") {
+							$("#" + $("#selectOrder").val()).remove();
+							$("#pageIndex").val(1);
+							$("#contentList").html("");
+							readyInfo();
+						}
+					},
+					error: function () {
+
+					}
+				})
+			}
+		}
+
+		//正常用户签收
+		function chooseFinish(orderHead) {
+			if (!isBlank($("#selectOrder").val())) {
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "riderLineFinishPackage",
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderHead: orderHead
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						$.alert(response[0].mesg, "");
+						if (response[0].status == "success") {
+							$("#" + $("#selectOrder").val()).remove();
+							$("#pageIndex").val(1);
+							$("#contentList").html("");
+							readyInfo();
+						}
+					},
+					error: function () {
+
+					}
+				})
+			}
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		//需要初始化的订单信息
+		function readyInfo() {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderLineRunInfo",
+				data: {
+					safeCode: cookieget("usersafety"),
+					pageIndex: $("#pageIndex").val()
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						console.log(list);
+						var oldHead = "";
+						var packsHead = "";
+						var packages = "";
+						var packsShow = "";
+						var packsShowAll = "";
+						for (var i = 0; i < list.length; i++) {
+							if (oldHead != list[i].orderHead) {
+								//这里是一个新的订单 ,纪录头信息,如有信息了就合成
+								if (packsHead.length > 0) {
+									packsShow = packsHead + itemBodyCover(packages);
+									packsShowAll = packsShowAll + packsShow;
+									packages = "";
+								}
+								packsHead = itemHead(list[i].orderHead, list[i].cName, list[i].cPhone, list[i].cAddress);
+								packages += itemBody(list[i].orderHead, list[i].code);
+								if (i == list.length - 1) {
+									packsShow = packsHead + itemBodyCover(packages);
+									packsShowAll = packsShowAll + packsShow;
+									packsShow = "";
+									packsHead = "";
+								}
+								oldHead = list[i].orderHead;
+							} else {
+								//如果是同一个订单的话，则处理包裹
+								packages += itemBody(list[i].orderHead, list[i].code);
+								if (i == list.length - 1) {
+									packsShow = packsHead + itemBodyCover(packages);
+									packsShowAll = packsShowAll + packsShow;
+									packsShow = "";
+									packsHead = "";
+									packages = "";
+								}
+							}
+						}
+						$("#contentList").append(packsShowAll);
+					} else {
+						//                        $("#contentList").html("");
+						$("#more").hide();
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//点击更多
+		function addMore() {
+			$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
+			readyInfo();
+		}
+
+		//订单头信息
+		function itemHead(orderHead, name, phone, address) {
+			var html = "";
+			html += "<div class=\"weui-cell weui-cell_access\">";
+			html += "<div class=\"weui-cell__bd\" style=\"font-weight: bolder;\">" + orderHead + "</div>";
+			html += "<div class=\"weui-cell__ft\" style=\"font-size: 0\">";
+			html += "<span style=\"vertical-align:middle; font-size: 17px;\">" + name + "</span>";
+			html += "</div>";
+			html += "</div>";
+			html += "<div class=\"weui-cells__title\">" + phone + "</div>";
+			html += "<div class=\"weui-cells__title\">" + address + "</div>";
+			return html;
+		}
+
+		//订单包裹
+		function itemBody(orderHead, packCode) {
+			var html = "";
+			html += "<a href=\"javascript:dealOrder('" + orderHead + "','" + packCode + "')\" class=\"weui-grid js_grid\" style=\"background-color: #EC8B89\">";
+			html += "<div class=\"weui-grid__icon\">";
+			html += "<img src=\"img/spack.png\" alt=\"\">";
+			html += "</div>";
+			html += "<p class=\"weui-grid__label\" style=\"font-size: 21px; color:white\">";
+			html += packCode;
+			html += "</p>";
+			html += "</a>";
+			return html;
+		}
+
+		//封装包裹
+		function itemBodyCover(body) {
+			return "<div class=\"weui-grids\">" + body + "</div>";
+		}
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #E15240;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #E15240;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+</head>
+
+<body ontouchstart>
+	<input type="hidden" id="pageIndex" value="1" />
+	<input type="hidden" id="selectOrder" />
+
+
+	
+	<div class="head" onclick="myBack('_deliveryMyself.html')">
+		<a href="javascript:javascript:"  onclick="myBack('_deliveryMyself.html')" class="return">〈</a>
+		已取货
+		<a href="javascript:javascript:"  onclick="myBack('_deliveryMyself.html')" class="search"></a>
+	</div>
+
+
+
+	<div class="weui-cells" id="contentList">
+	</div>
+	<div id="more" class="weui-form-preview__ft">
+		<a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:addMore()">点击更多</a>
+	</div>
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+
+		//送达以后处理订单
+		function dealOrder(obj, packCode) {
+			$("#selectOrder").val(obj);
+			$.modal({
+				title: obj,
+				text: "是否送达?",
+				buttons: [{
+					text: "拒收",
+					className: "default",
+					onClick: function () {
+						$.actions({
+							title: "【请选择客户拒收的原因】",
+							onClose: function () {
+
+							},
+							actions: gridArrayData
+						});
+					}
+				},
+				{
+					text: "取消",
+					onClick: function () { }
+				},
+				{
+					text: "签收",
+					onClick: function () {
+						chooseFinish(obj);
+					}
+				},
+				]
+			});
+		}
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+</body>
+
+</html>

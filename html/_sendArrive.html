@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>sendArrive</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Write.xml site description.">
+    <link rel="stylesheet" href="../lib/weui.min.css">
+    <link rel="stylesheet" href="../css/jquery-weui.css">
+    <link rel="stylesheet" href="../css/demos.css">
+    <script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/base.js"></script>
+    <script>
+        $(document).ready(function () {
+            if (!isUrlHxApp()) {
+                arriveInfo();
+            }
+        });
+
+        function HxAppready() {
+            arriveInfo();
+        }
+
+        //验证用户身份
+        function IDValid() {
+            if (isBlank(cookieget("usersafety"))) {
+                if (isHxApp()) {
+                    app_GoLogin();
+                } else {
+                    window.location.href = "login.html";
+                }
+            }
+        }
+
+        function arriveInfo() {
+            IDValid();
+            $.showLoading();
+            jQuery.ajax({
+                type: "get",
+                url: horse_ajax + "riderLogisticsArrive",
+                data: {
+                    safeCode: cookieget("usersafety"),
+                    pageIndex: $("#pageIndex").val()
+                },
+                dataType: "jsonp",
+                crossDomain: true,
+                success: function (response) {
+                    var htmlAll = $("#contentList").html();
+                    if ("success" == response[0].status) {
+                        var list = response[0].data;
+                        list.forEach(function (value, index, array) {
+                            htmlAll += itemMaker(array[index].dealFlag, array[index].cPhone, array[index].cAddress, array[index].arriveDate, array[index].orderHead, array[index].codeDesc)
+                        });
+                        $("#contentList").html(htmlAll);
+                    }
+                    else {
+                        $("#more").hide();
+                    }
+                    $.hideLoading();
+                },
+                error: function () {
+                    $.hideLoading();
+                }
+            })
+        }
+
+        //点击更多
+        function addMore() {
+            $("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
+            arriveInfo();
+        }
+
+        //列表生产器
+        function itemMaker(result, phone, address, date1, orderHead, codeDesc) {
+            var html = "";
+            html += "<a href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">";
+            html += "<div onclick=\"refShow('" + codeDesc + "','" + phone + "')\"  class=\"weui-media-box__hd\">";
+            if (4 == result) {
+                html += "<img class=\"weui-media-box__thumb\" src=\"img/arriveFinish.png\" alt=\"\">";
+            } else {
+                html += "<img class=\"weui-media-box__thumb\" src=\"img/arriveRefuse.png\" alt=\"\">";
+            }
+            html += "</div>";
+            html += "<div class=\"weui-media-box__bd\">";
+            html += "<h4 class=\"weui-media-box__title\">";
+            html += address;
+            html += " <span class=\"weui-media-box__title-after\">" + date1 + "</span>";
+            html += " </h4>";
+            html += "<p class=\"weui-media-box__desc\">" + orderHead + "</p>";
+            html += "</div>";
+            html += "</a>";
+            return html;
+        }
+
+        function refShow(msg, phone) {
+            if (!isBlank(msg)) {
+                $.alert("退货原因", msg);
+            }
+        }
+    </script>
+    <style>
+        .head {
+            height: 3.0rem;
+            line-height: 3.0rem;
+            text-align: center;
+            background-color: #fff;
+            color: #13227A;
+            position: relative;
+            font-size: 1.3rem;
+        }
+
+        .return {
+            font-size: 1.2rem;
+            color: #13227A;
+            position: absolute;
+            left: 1rem;
+            top: 0rem;
+        }
+
+        .search {
+            color: #fff;
+            position: absolute;
+            right: 1rem;
+        }
+    </style>
+</head>
+
+<body ontouchstart>
+    <input type="hidden" id="pageIndex" value="1" />
+
+
+    <div class="head" onclick="myBack('_deliveryOther.html')">
+        <a href="javascript:javascript:" onclick="myBack('_deliveryOther.html')" class="return">〈</a>
+        已送达
+        <a href="javascript:javascript:" onclick="myBack('_deliveryOther.html')" class="search"></a>
+    </div>
+
+
+
+
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-panel__bd" id="contentList">
+        </div>
+        <div id="more" class="weui-form-preview__ft">
+            <a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:addMore()">
+                点击更多</a>
+        </div>
+    </div>
+    <script src="../lib/jquery-2.1.4.js"></script>
+    <script src="../lib/fastclick.js"></script>
+    <script>
+        $(function () {
+            FastClick.attach(document.body);
+        });
+    </script>
+    <script src="../js/jquery-weui.js"></script>
+</body>
+
+</html>

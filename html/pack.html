@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>国贸商户</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Write an awesome description for your new  in your document head meta">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				timerStart();
+			}
+		});
+
+		function HxAppready() {
+			timerStart();
+		}
+
+		//开启定时器
+		function timerStart() {
+			orderInfo();
+			setInterval("orderInfo()", "10000");
+		}
+
+		function orderInfo() {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetOrder",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						//		console.log(list);
+						var oldHead = "";
+						var htmlH = "";
+						var htmlB = "";
+						var htmlF = "";
+						var htmlAll = "";
+						for (var i = 0; i < list.length; i++) {
+							if (oldHead != list[i].orderHead) {
+								if (htmlH.length > 0) {
+									htmlAll = htmlAll + htmlH + htmlB + htmlF;
+								}
+								htmlH = productHead(list[i].requireDate, list[i].orderHead, list[i].cName, list[i].cPhone, list[i].cAddress, list[i].sendType, list[i].ifMySelf);
+								htmlF = productFoot(list[i].cRemark, list[i].orderHead, list[i].sendType)
+								htmlB = productBody(list[i].orderHead, list[i].id, list[i].sp_name, list[i].sp_img_url, list[i].sp_xhgg_sm, list[i].num, list[i].flag);
+								if (i == list.length - 1) {
+									htmlAll = htmlAll + htmlH + htmlB + htmlF;
+									htmlH = "";
+									htmlB = "";
+									htmlF = "";
+								}
+								oldHead = list[i].orderHead;
+							} else {
+								htmlB = htmlB + productBody(list[i].orderHead, list[i].id, list[i].sp_name, list[i].sp_img_url, list[i].sp_xhgg_sm, list[i].num, list[i].flag);
+								if (i == list.length - 1) {
+									htmlAll = htmlAll + htmlH + htmlB + htmlF;
+									htmlH = "";
+									htmlB = "";
+									htmlF = "";
+								}
+							}
+						}
+						$("#content").html(htmlAll);
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+
+</head>
+
+<body ontouchstart>
+
+
+	<div class="head" onclick="myBack('home.html')">
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+		订单打包
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+	</div>
+
+
+	<!--<div>
+			<div class="weui-cells">
+				<div class="weui-cell">
+					<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+						<img src="img/client.png" style="width: 50px;display: block">
+					</div>
+					<div class="weui-cell__bd">
+						<a href="#">
+							<p style="color: #F76260;">2018-03-12 15:40</p>
+							<p style="font-size: 13px; color: black;">18003120086321</p>
+						</a>
+					</div>
+				</div>
+				<div class="weui-cell weui-cell_access">
+					<div class="weui-cell__bd">
+						<span style="vertical-align: middle">张三丰</span>
+					</div>
+					<div class="weui-cell__ft">189-5276-0619</div>
+				</div>
+				<div class="weui-cell weui-cell_access">
+					<div class="weui-cell__bd">
+						<span style="vertical-align: middle">广陵区沙湾路声谷产业园2期11号楼E座3F</span>
+					</div>
+				</div>
+
+				<div class="weui-cell weui-cell_swiped" id="swipe1111">
+					<div class="weui-cell__bd">
+						<div class="weui-cell">
+							<div class="weui-cell__bd">
+								<p style="color: gray;">拒接或跳单滑动此处</p>
+							</div>
+							<div class="weui-cell__ft"></div>
+						</div>
+					</div>
+					<div class="weui-cell__ft">
+						<a class="weui-swiped-btn weui-swiped-btn_warn refuse-swipeout" href="javascript:">拒绝</a>
+						<a class="weui-swiped-btn weui-swiped-btn_default  receive-swipeout" href="javascript:">跳单</a>
+					</div>
+				</div>
+
+				<div class="weui-cell" id="pack1">
+					<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+						<img src="http://img.554488.com/big/201512/20ba0ff9-61b4-475b-bccc-21d0a20305a7.jpg" style="width: 50px;display: block">
+					</div>
+					<div class="weui-cell__bd">
+						<p>欧莱雅洗发液</p>
+						<p style="font-size: 13px;color: #888888;">规格：中瓶装</p>
+					</div>
+					<span id="pack1Val" class="weui-badge" style="margin-left: 5px;">3</span>
+				</div>
+
+				
+
+				<div class="weui-cell">
+					<div class="weui-cell__hd"></div>
+					<div class="weui-cell__bd">
+						<p></p>
+					</div>
+					<div class="weui-cell__ft" style="font-size: 15px;">奶茶要7分甜谢谢</div>
+				</div>
+
+				<div class="weui-form-preview__ft">
+					<a id="mySend" class="weui-form-preview__btn weui-form-preview__btn_default" href="javascript:">自己配送</a>
+					<button id="platformSend" type="submit" class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:">平台配送</button>
+				</div>
+
+			</div>
+		</div>-->
+	<div id="content">
+	</div>
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+	<script>
+		//延后操作
+		function delay(orderHead) {
+			$.confirm("确定要暂时不处理此订单?", orderHead, function () {
+				IDValid();
+				$.showLoading();
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "sellerSetOrderWait",
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderHead: orderHead
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						if ("success" == response[0].status) {
+							$.toast(response[0].mesg, "forbidden");
+							orderInfo();
+						}
+						$.hideLoading();
+					},
+					error: function () {
+						$.hideLoading();
+					}
+				})
+			}, function () {
+				//取消操作
+			});
+		}
+
+		//拒收订单
+		function myApply(orderHead) {
+			$.confirm("确定是否拒收此单?", orderHead, function () {
+				IDValid();
+				$.showLoading();
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "sellerSetOrderRefuse",
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderHead: orderHead
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						$.hideLoading();
+						if ("success" == response[0].status) {
+							$.toast("拒收订单成功", "forbidden");
+							$("#" + orderHead).remove();
+						} else {
+							$.toast(response[0].mesg, "forbidden");
+						}
+					},
+					error: function () {
+						$.hideLoading();
+					}
+				})
+			}, function () {
+				//取消操作
+			});
+		}
+
+		//显示配送方式
+		function sendDesc(sendType) {
+			var ret = "";
+			if ("1" == sendType) {
+				ret = "商户配送";
+			} else if ("2" == sendType) {
+				ret = "平台配送";
+			} else {
+				ret = "用户自取";
+			}
+			return '方式：' + ret;
+		}
+
+		//api接口
+		function sendApi(sendType) {
+			var ret = "";
+			if ("1" == sendType) {
+				ret = "sellerSetOrderSendShop";
+			} else if ("2" == sendType) {
+				ret = "sellerSetOrderSend";
+			} else {
+				ret = "sellerSetOrderSendCustomer";
+			}
+			return ret;
+		}
+
+		//申请平台推送 $.toptip('操作成功', 'success');$.alert('发货申请成功', "");
+		function sendApply(orderHead, sendType) {
+			jQuery.ajax({
+				type: "get",
+				async: false,
+				url: horse_ajax + "sellerGetOrderPackStatus",
+				data: {
+					safeCode: cookieget("usersafety"),
+					orderHead: orderHead
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						sendApplyOKNew(orderHead, sendType);
+					} else {
+						$.toast("订单未打包完毕", "forbidden");
+					}
+				},
+				error: function () { }
+			})
+			//				$.modal({
+			//					title: orderHead,
+			//					text: "请选择您的配送方式",
+			//					buttons: [{
+			//							text: "自配送",
+			//							onClick: function() {
+			//								$.alert("暂不支持");
+			//							}
+			//						},
+			//						{
+			//							text: "平台送",
+			//							onClick: function() {
+			//								jQuery.ajax({
+			//									type: "get",
+			//									async: false,
+			//									url: horse_ajax + "sellerGetOrderPackStatus",
+			//									data: {
+			//										safeCode: cookieget("usersafety"),
+			//										orderHead: orderHead
+			//									},
+			//									dataType: "jsonp",
+			//									crossDomain: true,
+			//									success: function(response) {
+			//										if("success" == response[0].status) {
+			//											sendApplyOK(orderHead);
+			//										} else {
+			//											$.toast("订单未打包完毕", "forbidden");
+			//										}
+			//									},
+			//									error: function() {}
+			//								})
+			//							}
+			//						},
+			//						{
+			//							text: "取消",
+			//							className: "default"
+			//						},
+			//					]
+			//				});
+
+		}
+
+		function sendApplyOKNew(orderHead, sendType) {
+			$.confirm(orderHead, sendDesc(sendType), function () {
+				jQuery.ajax({
+					type: "get",
+					async: false,
+					url: horse_ajax + sendApi(sendType),
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderHead: orderHead
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						if ("success" == response[0].status) {
+							$.toast(response[0].mesg, "success");
+							$("#" + orderHead).remove();
+						} else {
+							$.toast(response[0].mesg, "forbidden");
+						}
+					},
+					error: function () { }
+				})
+			}, function () {
+				//取消操作
+			});
+		}
+
+		//准备托管
+		function sendApplyOK(orderHead) {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerSetOrderSend",
+				data: {
+					safeCode: cookieget("usersafety"),
+					orderHead: orderHead
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						$.toast("发货申请成功", "success");
+						$("#" + orderHead).remove();
+					}
+				},
+				error: function () { }
+			})
+		}
+
+		//确认打包询问(打包过了不允许继续打包)
+		function pack(detailID, num, flag) {
+			if (0 != flag) {
+				$.toast("请勿重复打包", "forbidden");
+				return;
+			}
+			$.prompt({
+				text: "",
+				title: "请确认打包数量",
+				onOK: function (text) {
+					goodsPack(detailID, text);
+				},
+				onCancel: function () {
+					console.log("取消了");
+				},
+				input: num
+			});
+		}
+
+		//执行商品确认操作
+		function goodsPack(detailID, num) {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerSetOrderPacked",
+				data: {
+					safeCode: cookieget("usersafety"),
+					detailID: detailID,
+					num: num
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						$("#d" + detailID).css("color", "#0BB20C");
+						$("#d" + detailID).html(num);
+						$.toptip(response[0].mesg, 'success');
+					} else {
+						$.toptip(response[0].mesg, 'error');
+					}
+				},
+				error: function () { }
+			})
+		}
+
+		//创建头
+		function productHead(requireDate, orderHead, cName, cPhone, cAddress, sendType, ifMySelf) {
+			var headHtml = "";
+			headHtml += "<div id=\"" + orderHead + "\">";
+
+			headHtml += "<div class=\"weui-cell\" style=\"background-color:#eee\">";
+			headHtml += "<div onclick=\"delay('" + orderHead + "')\" class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
+			if (ifMySelf == 1) {
+				headHtml += "<img src=\"img/self.png\" style=\"width: 50px;display: block\">";
+			} else {
+				headHtml += "<img src=\"img/motorbike-red.png\" style=\"width: 50px;display: block\">";
+			}
+			headHtml += "</div>";
+			headHtml += "<div class=\"weui-cell__bd\">";
+			headHtml += "<a href=\"#\">";
+			headHtml += "<p style=\"color: black;\">" + orderHead + "</p>";
+			headHtml += "<p style=\"font-size: 13px; color: black;\">" + requireDate + "</p>";
+			headHtml += "</a>";
+			headHtml += "</div>";
+			headHtml += "</div>";
+
+			//如果不是用户自提的话，需要知道配送地址人员联系方式等
+			if (ifMySelf == 0) {
+				headHtml += "<div class=\"weui-cell weui-cell_access\">";
+				headHtml += "<div class=\"weui-cell__bd\">";
+				headHtml += "<span style=\"vertical-align: middle\">" + cName + "</span>";
+				headHtml += "</div>";
+				headHtml += "<div class=\"weui-cell__ft\">" + cPhone + "</div>";
+				headHtml += "</div>";
+
+				headHtml += "<div class=\"weui-cell weui-cell_access\">";
+				headHtml += "<div class=\"weui-cell__bd\">";
+				headHtml += "<span style=\"vertical-align: middle\">" + cAddress + "</span>";
+				headHtml += "</div>";
+				headHtml += "</div>"
+			}
+			return headHtml;
+		}
+		//创建身体
+		function productBody(orderHead, detailID, sp_name, sp_img_url, sp_xhgg_sm, num, flag) {
+			var bodyHtml = "";
+			bodyHtml += "<div onclick=\"pack(" + detailID + "," + num + "," + flag + ")\" class=\"weui-cell\">";
+			bodyHtml += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
+			//bodyHtml += "<img src=\"http://img.554488.com/big/" + sp_img_url + "\" alt=\"\" style=\"width: 50px;display: block\">";
+			if (0 == flag) {
+				//					bodyHtml += "<img src=\"img/empty_box.png\" alt=\"\" style=\"width: 50px;display: block\">";
+				bodyHtml += "<div id=\"d" + detailID + "\" style=\"background-color: #;width: 50px;line-height:40px;font-size:40px; text-align:center;;display: block;color:red\">" + num + "</div>";
+			} else {
+				bodyHtml += "<div id=\"d" + detailID + "\" style=\"width: 50px;line-height:40px;font-size:40px; text-align:center;;display: block;color:#0BB20C\">" + num + "</div>";
+			}
+			bodyHtml += "</div>";
+			bodyHtml += "<div class=\"weui-cell__bd\">";
+			bodyHtml += "<p>" + sp_name + "</p>";
+			if (!isBlank(sp_xhgg_sm)) {
+				bodyHtml += "<p style=\"font-size: 13px;color: #888888;\">规格：" + sp_xhgg_sm + "</p>";
+			}
+			bodyHtml += "</div>";
+			//	bodyHtml += "<span class=\"weui-badge\" style=\"margin-left: 5px;\">" + num + "</span>";
+			bodyHtml += "</div>";
+			return bodyHtml;
+		}
+		//创建底部
+		function productFoot(cRemark, orderHead, sendType) {
+			var footHtml = "";
+			if (!isBlank(cRemark)) {
+				footHtml += "<div class=\"weui-cell\" >";
+				footHtml += "<div class=\"weui-cell__hd\"></div>";
+				footHtml += "<div class=\"weui-cell__bd\" > ";
+				footHtml += "<p></p>";
+				footHtml += "</div>";
+				footHtml += "<div class=\"weui-cell__ft\" style=\"font-size: 15px;\">111" + cRemark + "</div>";
+				footHtml += "</div>";
+			}
+			//foot2
+			footHtml += "<div class=\"weui-form-preview__ft\">";
+			footHtml += "<a onclick=\"myApply('" + orderHead + "')\" class=\"weui-form-preview__btn weui-form-preview__btn_default\" href=\"javascript:\">拒接</a>";
+			if (sendType == "3") {
+				footHtml += "<button type=\"submit\" class=\"weui-form-preview__btn weui-form-preview__btn_primary\" href=\"javascript:\">自提</button>";
+			} else {
+				footHtml += "<button onclick=\"sendApply('" + orderHead + "','" + sendType + "')\" type=\"submit\" class=\"weui-form-preview__btn weui-form-preview__btn_primary\" href=\"javascript:\">配送</button>";
+			}
+			footHtml += "</div>";
+
+			footHtml += "<div class=\"weui-progress\">";
+			footHtml += "<div class=\"weui-progress__bar\">";
+			footHtml += "<div class=\"weui-progress__inner-bar js_progress\" style=\"width: 105%;\"></div>";
+			footHtml += " </div><a href=\"javascript:;\" class=\"weui-progress__opr\"></a></div>";
+
+			footHtml += "</div>" //整个productHead中的第一个headHtml[div]
+
+			return footHtml;
+		}
+	</script>
+</body>
+
+</html>

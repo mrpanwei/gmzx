@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>线路普通派送</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+	<meta name="description" content="Write an g.yand in your feed.xml site description.">
+
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				deliveryMyInfo();
+			}
+		});
+
+		function HxAppready() {
+			deliveryMyInfo();
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+		function deliveryMyInfo() {
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderLineCollectInfo",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						//头信息
+						var info = list.Table;
+						for (var i = 0; i < info.length; i++) {
+							$("#groupName").html(info[0].groupName);
+							$("#names").html($("#names").html() + info[i].name + "，");
+						}
+						//统计信息
+						var collect = list.Table1;
+						if (collect.length > 0) {
+							$("#v1").html(collect[0].ready);
+							$("#v2").html(collect[0].run);
+							$("#v3").html(collect[0].arrive);
+							if (0 != collect[0].ready) {
+								$("#v1").show();
+							}
+							if (0 != collect[0].run) {
+								$("#v2").show();
+							}
+							if (0 != collect[0].arrive) {
+								$("#v3").show();
+							}
+						}
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #E15240;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #E15240;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+</head>
+
+<body ontouchstart>
+
+
+	<div class="head" onclick="myBack('_home.html')">
+		<a href="javascript:javascript:"  onclick="myBack('_home.html')" class="return">〈</a>
+		线路普通派送
+		<a href="javascript:javascript:"  onclick="myBack('_home.html')" class="search"></a>
+	</div>
+
+
+	<div class="weui-cells">
+		<div class="weui-cell" style="padding:10px 10px">
+			<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+				<img src="img/hall.png" style="width: 50px;display: block">
+			</div>
+			<div class="weui-cell__bd">
+				<p id="groupName"></p>
+				<p id="names" style="font-size: 13px;color: #888888;"></p>
+			</div>
+		</div>
+	</div>
+	<div class="weui-grids">
+		<a href="_deliveryReady.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/swaitm.png" alt="">
+				<span id="v1" class="weui-badge" style="margin-left: 45px;display: none;"></span>
+			</div>
+
+			<p class="weui-grid__label">
+				待受理
+			</p>
+
+		</a>
+		<a href="_deliveryRun.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/sgetm.png" alt="">
+				<span id="v2" class="weui-badge" style="margin-left: 45px;display: none;"></span>
+			</div>
+			<p class="weui-grid__label">
+				配送中
+			</p>
+		</a>
+		<a href="_deliveryArrive.html" class="weui-grid js_grid">
+			<div class="weui-grid__icon">
+				<img src="img/sarrivem.png" alt="">
+				<span id="v3" class="weui-badge" style="margin-left: 45px;display: none;"></span>
+			</div>
+			<p class="weui-grid__label">
+				已送达
+			</p>
+		</a>
+	</div>
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+
+</body>
+
+</html>
