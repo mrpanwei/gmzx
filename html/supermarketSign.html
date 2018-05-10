@@ -1,197 +1,208 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-	<title>订单自提</title>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-	<meta name="description" content="Wron.">
-	<meta name="description" content="Write an cription.">
-	<link rel="stylesheet" href="../lib/weui.min.css">
-	<link rel="stylesheet" href="../css/jquery-weui.css">
-	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
-	<script type="text/javascript" src="js/base.js"></script>
-	<style>
-		.head {
-			height: 3.0rem;
-			line-height: 3.0rem;
-			text-align: center;
-			background-color: #fff;
-			color: #52B3E5;
-			position: relative;
-			font-size: 1.3rem;
-		}
-
-		.return {
-			font-size: 1.2rem;
-			color: #52B3E5;
-			position: absolute;
-			left: 1rem;
-			top: 0rem;
-		}
-
-		.search {
-			color: #fff;
-			position: absolute;
-			right: 1rem;
-		}
-	</style>
-	<script>
-		$(document).ready(function () {
-			if (!isUrlHxApp()) {
-				selfInfo();
+	<head>
+		<title>订单自提</title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<meta name="description" content="Wron.">
+		<meta name="description" content="Write an cription.">
+		<link rel="stylesheet" href="../lib/weui.min.css">
+		<link rel="stylesheet" href="../css/jquery-weui.css">
+		<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+		<script type="text/javascript" src="js/base.js"></script>
+		<style>
+			.head {
+				height: 3.0rem;
+				line-height: 3.0rem;
+				text-align: center;
+				background-color: #fff;
+				color: #52B3E5;
+				position: relative;
+				font-size: 1.3rem;
 			}
-		});
-
-		function HxAppready() {
-			selfInfo();
-		}
-
-		//验证用户身份
-		function IDValid() {
-			if (isBlank(cookieget("usersafety"))) {
-				if (isHxApp()) {
-					app_GoLogin();
-				} else {
-					window.location.href = "login.html";
-				}
+			
+			.return {
+				font-size: 1.2rem;
+				color: #52B3E5;
+				position: absolute;
+				left: 1rem;
+				top: 0rem;
 			}
-		}
-
-		function selfInfo() {
-			IDValid();
-			$.showLoading();
-			//今天的签收列表
-			jQuery.ajax({
-				type: "get",
-				url: horse_ajax + "stafLineSignInfo",
-				data: {
-					safeCode: cookieget("usersafety"),
-					pageIndex: $("#pageIndex").val()
-				},
-				dataType: "jsonp",
-				crossDomain: true,
-				success: function (response) {
-					if ("success" == response[0].status) {
-						var list = response[0].data;
-						var html = "";
-						for (var i = 0; i < list.length; i++) {
-							html += "<a href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">" +
-								"<div class=\"weui-media-box__hd\"><img class=\"weui-media-box__thumb\" src=\"img/box-sign.png\" alt=\"\"></div>" +
-								"<div class=\"weui-media-box__bd\"><h4 class=\"weui-media-box__title\">" + list[i].boxCode + " <span class=\"weui-media-box__title-after\"></span></h4><p class=\"weui-media-box__desc\">" + list[i].recvDate + "</p></div></a>";
-						}
-						$("#contentList").html(html);
-						if ($("#contentList").html() != "") {
-							$("#more").show();
-						}
-					} else {
-						$("#more").hide();
-					}
-					$.hideLoading();
-				},
-				error: function () {
-					$.hideLoading();
+			
+			.search {
+				color: #fff;
+				position: absolute;
+				right: 1rem;
+			}
+		</style>
+		<script>
+			$(document).ready(function() {
+				if(!isUrlHxApp()) {
+					selfInfo();
 				}
 			});
-			//待签收数目
-			jQuery.ajax({
-				type: "get",
-				url: horse_ajax + "signCount",
-				data: {
-					usersafety: cookieget("usersafety")
-				},
-				dataType: "jsonp",
-				crossDomain: true,
-				success: function (response) {
-					if ("success" == response[0].status) {
-						$("#signCount").html(response[0].code.split(",")[0]);
+
+			function HxAppready() {
+				selfInfo();
+			}
+
+			//验证用户身份
+			function IDValid() {
+				if(isBlank(cookieget("usersafety"))) {
+					if(isHxApp()) {
+						app_GoLogin();
+					} else {
+						window.location.href = "login.html";
 					}
-					$.hideLoading();
-				},
-				error: function () {
-					$.hideLoading();
 				}
-			})
-		}
-
-		//点击更多
-		function addMore() {
-			$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
-			selfInfo();
-		}
-
-		function sign() {
-			if (isBlank($("#boxCode").val())) {
-				$.alert("", "请输入8位箱码");
-				return;
 			}
-			if (8 != $("#boxCode").val().length) {
-				$.alert("", "请输入8位箱码");
-				return;
-			}
-			$.confirm("请核对物流箱号并签收", $("#boxCode").val(), function () {
+
+			function selfInfo() {
+				IDValid();
 				$.showLoading();
+				//今天的签收列表
 				jQuery.ajax({
 					type: "get",
-					url: horse_ajax + "logisticsBoxSign",
+					url: horse_ajax + "stafLineSignInfo",
 					data: {
 						safeCode: cookieget("usersafety"),
-						boxCode: $("#boxCode").val()
+						pageIndex: $("#pageIndex").val()
 					},
 					dataType: "jsonp",
 					crossDomain: true,
-					success: function (response) {
-						$.alert(response[0].mesg, "");
-						if (response[0].status == "success") {
-							$("#boxCode").val("");
-							selfInfo();
+					success: function(response) {
+						if("success" == response[0].status) {
+							var list = response[0].data;
+							var html = "";
+							for(var i = 0; i < list.length; i++) {
+								html += "<a href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">" +
+									"<div class=\"weui-media-box__hd\"><img class=\"weui-media-box__thumb\" src=\"img/box-sign.png\" alt=\"\"></div>" +
+									"<div class=\"weui-media-box__bd\"><h4 class=\"weui-media-box__title\">" + list[i].boxCode + " <span class=\"weui-media-box__title-after\"></span></h4><p class=\"weui-media-box__desc\">" + list[i].recvDate + "</p></div></a>";
+							}
+							$("#contentList").html(html);
+							if($("#contentList").html() != "") {
+								$("#more").show();
+							}
+						} else {
+							$("#more").hide();
 						}
-
+						$.hideLoading();
 					},
-					error: function () {
-
+					error: function() {
+						$.hideLoading();
+					}
+				});
+				//待签收数目
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "signCount",
+					data: {
+						usersafety: cookieget("usersafety")
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function(response) {
+						if("success" == response[0].status) {
+							$("#signCount").html(response[0].code.split(",")[0]);
+						}
+						$.hideLoading();
+					},
+					error: function() {
+						$.hideLoading();
 					}
 				})
-				$.hideLoading();
-			});
-		}
-	</script>
-</head>
+			}
 
-<body ontouchstart>
-	<input type="hidden" id="pageIndex" value="1" />
+			//点击更多
+			function addMore() {
+				$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
+				selfInfo();
+			}
 
-	<div class="head" onclick="myBack('supermarketHome.html')">
-		<a href="javascript:javascript:" onclick="myBack('supermarketHome.html')" class="return">〈</a>
-		物流签收
-		<a href="javascript:javascript:" onclick="myBack('supermarketHome.html')" class="search"></a>
-	</div>
+			function sign() {
+				if(isBlank($("#boxCode").val())) {
+					$.alert("", "请输入4位箱码");
+					return;
+				}
+				if(4 != $("#boxCode").val().length) {
+					$.alert("", "请输入4位箱码");
+					return;
+				}
+				$.confirm("请核对物流箱号并签收", $("#boxCode").val(), function() {
+					$.showLoading();
+					jQuery.ajax({
+						type: "get",
+						url: horse_ajax + "logisticsBoxSign",
+						data: {
+							safeCode: cookieget("usersafety"),
+							boxCode: $("#boxCode").val()
+						},
+						dataType: "jsonp",
+						crossDomain: true,
+						success: function(response) {
+							$.alert(response[0].mesg, "");
+							if(response[0].status == "success") {
+								$("#boxCode").val("");
+								selfInfo();
+							}
 
+						},
+						error: function() {
 
-	<div class="weui-cells__title">
-		待签收物流箱数：
-		<span id="signCount">0</span>
-	</div>
-	<div class="weui-cells weui-cells_form">
-		<div class="weui-cell weui-cell_warn">
-			<div class="weui-cell__hd">
-				<label for="" class="weui-label" style="color: grey;">
+						}
+					})
+					$.hideLoading();
+				});
+			}
+
+			//开始扫描
+			function scan() {
+				if(isUrlHxApp()) {
+					app_QrCode(getCode, 1);
+				}
+			}
+
+			//提取code
+			function getCode(obj) {
+				$("#boxCode").val(obj);
+			}
+		</script>
+	</head>
+
+	<body ontouchstart>
+		<input type="hidden" id="pageIndex" value="1" />
+
+		<div class="head" onclick="myBack('supermarketHome.html')">
+			<a href="javascript:javascript:" onclick="myBack('supermarketHome.html')" class="return">〈</a>
+			物流签收
+			<a href="javascript:javascript:" onclick="myBack('supermarketHome.html')" class="search"></a>
+		</div>
+
+		<div class="weui-cells__title">
+			待签收物流箱数：
+			<span id="signCount">0</span>
+		</div>
+		<div class="weui-cells weui-cells_form">
+			<div class="weui-cell weui-cell_warn">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label" style="color: grey;">
 					请输入：</label>
-			</div>
-			<div class="weui-cell__bd">
-				<input id="boxCode" class="weui-input" type="text" maxlength="8" value="" placeholder="8位箱码">
-			</div>
-			<div class="weui-cell__ft">
-				<i class="weui-icon-warn"></i>
+				</div>
+				<div class="weui-cell__bd">
+					<input id="boxCode" class="weui-input" type="text" maxlength="4" value="" placeholder="4位箱码">
+				</div>
+				<div class="weui-cell__ft" onclick="scan()">
+					<i class="weui-icon-download"></i>
+				</div>
 			</div>
 		</div>
-	</div>
-	<div class="weui-btn-area">
-		<a class="weui-btn weui-btn_primary" href="javascript:sign()" id="showTooltips">签收</a>
-	</div>
-	<div id="contentList" class="weui-panel__bd">
-		<!--<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+		<div class="weui-btn-area">
+			<a class="weui-btn weui-btn_primary" href="javascript:sign()" id="showTooltips">签收</a>
+		</div>
+		<div id="contentList" class="weui-panel__bd">
+			<!--<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
             <div class="weui-media-box__hd">
                 <img class="weui-media-box__thumb" src="img/box-sign.png" alt="">
             </div>
@@ -214,18 +225,18 @@
                     2018-04-06 18:19</p>
             </div>
         </a>-->
-	</div>
-	<div id="more" class="weui-form-preview__ft">
-		<a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:addMore()">
-			点击更多</a>
-	</div>
-	<script type="text/javascript " src="../js/jquery-weui.min.js "></script>
-	<script src="../lib/fastclick.js "></script>
-	<script>
-		$(function () {
-			FastClick.attach(document.body);
-		});
-	</script>
-</body>
+		</div>
+		<div id="more" class="weui-form-preview__ft">
+			<a class="weui-form-preview__btn weui-form-preview__btn_primary" href="javascript:addMore()">
+				点击更多</a>
+		</div>
+		<script type="text/javascript " src="../js/jquery-weui.min.js "></script>
+		<script src="../lib/fastclick.js "></script>
+		<script>
+			$(function() {
+				FastClick.attach(document.body);
+			});
+		</script>
+	</body>
 
 </html>
