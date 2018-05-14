@@ -54,7 +54,7 @@
 						list.forEach(function (value, index, array) {
 							forCount++;
 							console.log(array[index]);
-							htmlAll += itemMake(array[index].name, array[index].address, array[index].position, array[index].orderHead, array[index].cAddress, array[index].requireDate, array[index].cLocation)
+							htmlAll += itemMake(array[index].Orderid,array[index].name, array[index].address, array[index].position, array[index].orderHead, array[index].cAddress, array[index].requireDate, array[index].cLocation)
 						});
 						$("#contentList").append(htmlAll);
 						if (forCount < 5) {
@@ -77,10 +77,10 @@
 			readyInfo();
 		}
 
-		function itemMake(name, address, position, orderHead, cAddress, requireDate, cLocation) {
+		function itemMake(orderID,name, address, position, orderHead, cAddress, requireDate, cLocation) {
 			var html = "";
 			html += "<div id=\"" + orderHead + "\" >";
-			html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"getTask('" + orderHead + "')\">";
+			html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"getTask('" + orderHead + "','"+orderID+"')\">";
 			html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
 			html += "<img src=\"img/scup.png\" style=\"width: 50px;display: block\">";
 			html += "</div>";
@@ -115,7 +115,7 @@
 			}
 		}
 
-		function getTask(obj) {
+		function getTask(obj,orderID) {
 			$.confirm(obj, "确定后受理此单", function () {
 				jQuery.ajax({
 					type: "get",
@@ -130,7 +130,7 @@
 						if ("success" == response[0].status) {
 							$("#" + obj).remove();
 							$.toast(response[0].mesg, "success");
-
+							callSMS(cookieget("usersafety"),orderID);
 						} else {
 							$.toast(response[0].mesg, "forbidden");
 						}

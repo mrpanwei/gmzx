@@ -8,7 +8,7 @@ var app_para = "";
 var item_para = "";
 var _winLocation = window.location.href; //获得当前页面的路径，根据路径规则进行逐页替换
 var _isWebKit = '__proto__' in {}; //是否是webkit内核
-if(_isWebKit) { //如果是webkit内核，则分模块使用zepto
+if (_isWebKit) { //如果是webkit内核，则分模块使用zepto
 	//要使用zeptojs的路径列表，可以做为分模块替换的开关
 	var _locationList = new Array();
 	//活动模块
@@ -24,7 +24,7 @@ if(_isWebKit) { //如果是webkit内核，则分模块使用zepto
 	//    }
 	//如果是首页的话，则使用zepto
 	var _tmp = _winLocation.replace(/(^http:\/\/)|(\/*$)/g, '');
-	if(_tmp.indexOf('/') < 0 || (_tmp.split('/').length <= 2 && _tmp.indexOf('/index') >= 0)) {
+	if (_tmp.indexOf('/') < 0 || (_tmp.split('/').length <= 2 && _tmp.indexOf('/index') >= 0)) {
 		_needReplace = true;
 	}
 	//如果是商品详情页的话，则使用zepto
@@ -72,7 +72,7 @@ function loginFromWX() {
 }
 
 function app_index_GoMyhome() {
-	if(isHxApp())
+	if (isHxApp())
 		app_GoMyhome();
 	else
 		window.location.href = "home.html";
@@ -89,9 +89,9 @@ function if_login() {
 	//alert(thisUPage);
 	//mobile.changePage( cookie('hxapp_url_new'), {changeHash :false, transition: "slideup"} );
 	//var dd = cookie('username');
-	if(isBlank(cookieget('usersafety'))) {
+	if (isBlank(cookieget('usersafety'))) {
 		//转到	searchresults页面，使用来自id为search的表单数
-		if(isHxApp()) {
+		if (isHxApp()) {
 			//alert("在APP");
 			app_GoLogin();
 		} else {
@@ -107,9 +107,9 @@ function if_login() {
 //判断有没有选择客户
 function if_customer() {
 	var thisURL = window.location.href;
-	if(isBlank(cookieget('customerID'))) {
+	if (isBlank(cookieget('customerID'))) {
 		//转到	searchresults页面，使用来自id为search的表单数
-		if(isHxApp()) {
+		if (isHxApp()) {
 			//alert("在APP");
 			window.location.href = 'chosekehu.html';
 		} else {
@@ -125,16 +125,16 @@ function if_customer() {
 function sendShopid(shopid) {
 	app_para = shopid;
 	try {
-		if(typeof(eval('HxAppReady')) === "function") {
+		if (typeof (eval('HxAppReady')) === "function") {
 
 			HxAppReady(app_para);
 		}
-	} catch(e) {}
+	} catch (e) {}
 }
 
 //判断登录后台判断
 function if_login_h(response) {
-	if(response[0].s_login != "0") {
+	if (response[0].s_login != "0") {
 		return true;
 	} else {
 		var thisURL = window.location.href;
@@ -142,12 +142,12 @@ function if_login_h(response) {
 		//var thisUPage = mpUPage[mpUPage.length - 1];
 		//$.cookie('hxapp_url_old',  document.referrer); //设置带时间的cookie
 		//$.cookie('hxapp_url_new', thisUPage, { expires: 1 }); //设置带时间的cookie
-		if(cookieget('username') != null && cookieget('username') != 'null' && cookieget('username') != "")
+		if (cookieget('username') != null && cookieget('username') != 'null' && cookieget('username') != "")
 			cookieremove('username');
-		if(cookieget('usersafety') != null && cookieget('usersafety') != 'null' && cookieget('usersafety') != "")
+		if (cookieget('usersafety') != null && cookieget('usersafety') != 'null' && cookieget('usersafety') != "")
 			cookieremove('usersafety');
 		//hideLoader();
-		if(isHxApp()) {
+		if (isHxApp()) {
 			app_GoLogin();
 		} else {
 			alert("请在APP中打开");
@@ -161,7 +161,7 @@ function if_login_h(response) {
 function login_url() {
 	var getret = new QueryString();
 	var thisURL = getret.u;
-	if(typeof(thisURL) != "undefined" && thisURL != "") {
+	if (typeof (thisURL) != "undefined" && thisURL != "") {
 		//window.location.href = decodeURIComponent(thisURL);
 		app_OpenUrl(decodeURIComponent(thisURL), '0')
 	} else {
@@ -172,10 +172,10 @@ function login_url() {
 }
 //退出登录
 function login_out() {
-	if(cookieget('username') != null)
+	if (cookieget('username') != null)
 		cookieremove('username');
-	if(!isBlank(cookieget('usersafety'))) {
-		if(is_weixn()) { //在微信中退出才清除openid
+	if (!isBlank(cookieget('usersafety'))) {
+		if (is_weixn()) { //在微信中退出才清除openid
 			//清空之前先把数据库中清除一下
 			$.ajax({
 				type: "get", //访问WebService使用Post方式请求
@@ -185,12 +185,12 @@ function login_out() {
 				}, //Email参数
 				dataType: "jsonp",
 				crossDomain: true,
-				error: function(x, e) {
+				error: function (x, e) {
 					hideLoader();
 				},
-				success: function(response) { //回调函数，result，返回值
+				success: function (response) { //回调函数，result，返回值
 					cookieremove('usersafety');
-					if(isHxApp()) {
+					if (isHxApp()) {
 						app_GoHome();
 					} else {
 						window.location = 'index.html';
@@ -199,14 +199,14 @@ function login_out() {
 			});
 		} else {
 			cookieremove('usersafety');
-			if(isHxApp()) {
+			if (isHxApp()) {
 				app_GoHome();
 			} else {
 				window.location = 'index.html';
 			}
 		}
 	} else {
-		if(isHxApp()) {
+		if (isHxApp()) {
 			app_GoHome();
 		} else {
 			window.location = 'index.html';
@@ -215,7 +215,7 @@ function login_out() {
 }
 //获取授权码
 function get_usersafety() {
-	if(isBlank(cookieget('usersafety')))
+	if (isBlank(cookieget('usersafety')))
 		return "";
 
 	else
@@ -224,7 +224,7 @@ function get_usersafety() {
 
 //获取客户ID
 function get_customerID() {
-	if(isBlank(cookieget('customerID')))
+	if (isBlank(cookieget('customerID')))
 		return "";
 
 	else
@@ -241,7 +241,7 @@ function app_StopLocationService() {
 
 //获取线路id
 function get_roadLineID() {
-	if(isBlank(cookieget('roadLineID')))
+	if (isBlank(cookieget('roadLineID')))
 		return "";
 
 	else
@@ -305,10 +305,10 @@ function get_roadLineID() {
 //    storage.removeItem(name); //清除c的值
 //}
 function setupWebViewJavascriptBridge(callback) {
-	if(window.WebViewJavascriptBridge) {
+	if (window.WebViewJavascriptBridge) {
 		return callback(WebViewJavascriptBridge);
 	}
-	if(window.WVJBCallbacks) {
+	if (window.WVJBCallbacks) {
 		return window.WVJBCallbacks.push(callback);
 	}
 	window.WVJBCallbacks = [callback];
@@ -316,15 +316,15 @@ function setupWebViewJavascriptBridge(callback) {
 	WVJBIframe.style.display = 'none';
 	WVJBIframe.src = 'wvjbscheme://__BRIDGE_LOADED__';
 	document.documentElement.appendChild(WVJBIframe);
-	setTimeout(function() {
+	setTimeout(function () {
 		document.documentElement.removeChild(WVJBIframe)
 	}, 0)
 }
 
 function isAndroid() {
 	var _app_para = app_para.split(',');
-	if(_app_para.length >= 5) {
-		if(!isBlank(_app_para[3]) && _app_para[3] == "android") {
+	if (_app_para.length >= 5) {
+		if (!isBlank(_app_para[3]) && _app_para[3] == "android") {
 			return true;
 		} else {
 			return false;
@@ -336,8 +336,8 @@ function isAndroid() {
 
 function isIos() {
 	var _app_para = app_para.split(',');
-	if(_app_para.length >= 5) {
-		if(!isBlank(_app_para[3]) && _app_para[3] == "ios") {
+	if (_app_para.length >= 5) {
+		if (!isBlank(_app_para[3]) && _app_para[3] == "ios") {
 			return true;
 		} else {
 			return false;
@@ -349,10 +349,10 @@ function isIos() {
 
 function cookiesetset(name, value) {
 	var storage;
-	if(isHxApp()) {
-		if(!isBlank(item_para)) {
+	if (isHxApp()) {
+		if (!isBlank(item_para)) {
 			var item_json = JSON.parse(item_para);
-			if(item_json[name]) {
+			if (item_json[name]) {
 				item_json[name] = value;
 				item_para = JSON.stringify(item_json);
 			}
@@ -363,20 +363,20 @@ function cookiesetset(name, value) {
 		}
 
 	}
-	if(isAndroid()) {
+	if (isAndroid()) {
 		storage = window.LocalStorage;
 		storage.setItem(name, encodeURIComponent(value));
-	} else if(isIos()) {
+	} else if (isIos()) {
 		var p = {
 			'key': name,
 			'value': encodeURIComponent(value)
 		};
-		setupWebViewJavascriptBridge(function(bridge) {
-			bridge.callHandler('setItem', p, function(response) {})
+		setupWebViewJavascriptBridge(function (bridge) {
+			bridge.callHandler('setItem', p, function (response) {})
 		})
 	} else {
 		storage = window.localStorage;
-		if(!storage) {
+		if (!storage) {
 			show_create("请退出无痕模式才可以登录!");
 			return false;
 		}
@@ -406,42 +406,42 @@ function cookiesetset(name, value) {
 
 function cookieget(name) {
 	// 只有获取usersafety才会有APP判断
-	if(name == "usersafety") {
+	if (name == "usersafety") {
 		// 判断APP
-		if(isHxApp()) {
+		if (isHxApp()) {
 			var _app_para = app_para.split(',');
-			if(_app_para.length == 5)
-				if(!isBlank(_app_para[2])) {
+			if (_app_para.length == 5)
+				if (!isBlank(_app_para[2])) {
 					console.log("usersafety" + _app_para[2]);
 					return _app_para[2];
 				}
 		}
 	}
 
-	if(isHxApp()) {
+	if (isHxApp()) {
 		try {
-			if(isBlank(item_para)) {
+			if (isBlank(item_para)) {
 				return null;
 			}
 			var item_json = JSON.parse(item_para);
-			if(item_json[name]) {
+			if (item_json[name]) {
 				console.log(name + ":" + item_json[name]);
 				return item_json[name];
 			} else {
 				return null;
 			}
-		} catch(e) {
+		} catch (e) {
 			console.log(e.message);
 			console.log(e.description);
 		}
 	} else {
 		var storage = window.localStorage;
-		if(!storage) {
+		if (!storage) {
 			alert("请退出无痕模式才可以登录!");
 			return false;
 		} else {
 			var arr = storage.getItem(name); //获取b的值
-			if(arr != null) {
+			if (arr != null) {
 				return decodeURIComponent(arr)
 			}
 			return null;
@@ -453,19 +453,19 @@ function cookieget(name) {
 function cookieremove(name) {
 
 	var storage;
-	if(isHxApp()) {
+	if (isHxApp()) {
 		var item_json = JSON.parse(item_para);
-		if(item_json[name]) {
+		if (item_json[name]) {
 			delete item_json[name];
 			item_para = JSON.stringify(item_json);
 		}
 	}
-	if(isAndroid()) {
+	if (isAndroid()) {
 		storage = window.LocalStorage;
 		storage.removeItem(name);
-	} else if(isIos()) {
-		setupWebViewJavascriptBridge(function(bridge) {
-			bridge.callHandler('removeItem', name, function(response) {})
+	} else if (isIos()) {
+		setupWebViewJavascriptBridge(function (bridge) {
+			bridge.callHandler('removeItem', name, function (response) {})
 		})
 	} else {
 		storage = window.localStorage;
@@ -481,9 +481,9 @@ function QueryString() {
 	var num = str.indexOf("?")
 	str = str.substr(num + 1); //截取“?”后面的参数串 
 	var arrtmp = str.split("&"); //将各参数分离形成参数数组 
-	for(i = 0; i < arrtmp.length; i++) {
+	for (i = 0; i < arrtmp.length; i++) {
 		num = arrtmp[i].indexOf("=");
-		if(num > 0) {
+		if (num > 0) {
 			name = arrtmp[i].substring(0, num); //取得参数名称 
 			value = arrtmp[i].substr(num + 1); //取得参数值 
 			this[name] = value.replace(/\#$|\#top/, ""); //定义对象属性并初始化 (把最后一个#号删除了)
@@ -493,9 +493,9 @@ function QueryString() {
 
 //返回site_id
 function if_set_site_id() {
-	if(isBlank(cookieget('hx_siteID'))) {
+	if (isBlank(cookieget('hx_siteID'))) {
 		defCity();
-		if(isBlank(cookieget('hx_siteID'))) {
+		if (isBlank(cookieget('hx_siteID'))) {
 			var thisURL = window.location.href;
 			window.location.href = 'stores.html?u=' + encodeURIComponent(thisURL);
 		}
@@ -512,8 +512,8 @@ function defCity() {
 		data: {},
 		dataType: "jsonp",
 		crossDomain: true,
-		success: function(response) {
-			if(response[0].status == "success") {
+		success: function (response) {
+			if (response[0].status == "success") {
 				cookiesetset('hx_siteID', response[0].city_id, 2);
 			}
 		}
@@ -523,7 +523,7 @@ function defCity() {
 function getUrlParam(name) {
 	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
 	var r = window.location.search.substr(1).match(reg); //匹配目标参数
-	if(r != null) return unescape(r[2].replace(/\#$|\#top/, ""));
+	if (r != null) return unescape(r[2].replace(/\#$|\#top/, ""));
 	return ''; //返回参数值
 }
 
@@ -532,7 +532,7 @@ function randomString(len) {
 	var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'; /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
 	var maxPos = $chars.length;
 	var pwd = '';
-	for(i = 0; i < len; i++) {
+	for (i = 0; i < len; i++) {
 		pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
 	}
 	return pwd;
@@ -545,12 +545,12 @@ function Base64() {
 	_keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
 	// public method for encoding
-	this.encode = function(input) {
+	this.encode = function (input) {
 		var output = "";
 		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
 		var i = 0;
 		input = _utf8_encode(input);
-		while(i < input.length) {
+		while (i < input.length) {
 			chr1 = input.charCodeAt(i++);
 			chr2 = input.charCodeAt(i++);
 			chr3 = input.charCodeAt(i++);
@@ -558,9 +558,9 @@ function Base64() {
 			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
 			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
 			enc4 = chr3 & 63;
-			if(isNaN(chr2)) {
+			if (isNaN(chr2)) {
 				enc3 = enc4 = 64;
-			} else if(isNaN(chr3)) {
+			} else if (isNaN(chr3)) {
 				enc4 = 64;
 			}
 			output = output +
@@ -571,13 +571,13 @@ function Base64() {
 	}
 
 	// public method for decoding
-	this.decode = function(input) {
+	this.decode = function (input) {
 		var output = "";
 		var chr1, chr2, chr3;
 		var enc1, enc2, enc3, enc4;
 		var i = 0;
 		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-		while(i < input.length) {
+		while (i < input.length) {
 			enc1 = _keyStr.indexOf(input.charAt(i++));
 			enc2 = _keyStr.indexOf(input.charAt(i++));
 			enc3 = _keyStr.indexOf(input.charAt(i++));
@@ -586,10 +586,10 @@ function Base64() {
 			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
 			chr3 = ((enc3 & 3) << 6) | enc4;
 			output = output + String.fromCharCode(chr1);
-			if(enc3 != 64) {
+			if (enc3 != 64) {
 				output = output + String.fromCharCode(chr2);
 			}
-			if(enc4 != 64) {
+			if (enc4 != 64) {
 				output = output + String.fromCharCode(chr3);
 			}
 		}
@@ -598,14 +598,14 @@ function Base64() {
 	}
 
 	// private method for UTF-8 encoding
-	_utf8_encode = function(string) {
+	_utf8_encode = function (string) {
 		string = string.replace(/\r\n/g, "\n");
 		var utftext = "";
-		for(var n = 0; n < string.length; n++) {
+		for (var n = 0; n < string.length; n++) {
 			var c = string.charCodeAt(n);
-			if(c < 128) {
+			if (c < 128) {
 				utftext += String.fromCharCode(c);
-			} else if((c > 127) && (c < 2048)) {
+			} else if ((c > 127) && (c < 2048)) {
 				utftext += String.fromCharCode((c >> 6) | 192);
 				utftext += String.fromCharCode((c & 63) | 128);
 			} else {
@@ -619,16 +619,16 @@ function Base64() {
 	}
 
 	// private method for UTF-8 decoding
-	_utf8_decode = function(utftext) {
+	_utf8_decode = function (utftext) {
 		var string = "";
 		var i = 0;
 		var c = c1 = c2 = 0;
-		while(i < utftext.length) {
+		while (i < utftext.length) {
 			c = utftext.charCodeAt(i);
-			if(c < 128) {
+			if (c < 128) {
 				string += String.fromCharCode(c);
 				i++;
-			} else if((c > 191) && (c < 224)) {
+			} else if ((c > 191) && (c < 224)) {
 				c2 = utftext.charCodeAt(i + 1);
 				string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
 				i += 2;
@@ -643,7 +643,7 @@ function Base64() {
 	}
 }
 
-var show_create = function(l, k) {
+var show_create = function (l, k) {
 	var h = "toast_notification";
 	var e = 200;
 	var g = 60;
@@ -655,7 +655,7 @@ var show_create = function(l, k) {
 	d.style.cssText = ["vertical-align:middle", "display:block", "text-align:center", "width:" + j + "px", "height:auto", "padding:16px 10px", "background-color:#000", "opacity:0.7", "border-radius:5px", "color:#ffffff", "font-size:14px", "margin:0 -" + j / 2 + "px", "position:fixed", "top:50%", "left:50%", "word-break:break-all", "word-wrap:break-word", "z-index:80003"].join(";");
 	d.innerHTML = l;
 	document.body.appendChild(d);
-	if(k > 0) {
+	if (k > 0) {
 		clearTimeout(i);
 		i = setTimeout(showclear, k)
 	} else {
@@ -663,19 +663,19 @@ var show_create = function(l, k) {
 		i = setTimeout(showclear, 1500)
 	}
 };
-var showclear = function() {
+var showclear = function () {
 	var h = "toast_notification";
 	var e = 200;
 	var g = 60;
 	var d, dd, i;
 	d = document.getElementById(h);
-	if(d) {
+	if (d) {
 		d.innerText = "";
 		document.body.removeChild(d)
 	}
 };
 
-var show_loading = function() {
+var show_loading = function () {
 	var hh = "w-loading";
 	var hh_bg = "w-loading_bg";
 	show_loadclear();
@@ -684,7 +684,7 @@ var show_loading = function() {
 	dd.style.cssText = ["margin-left: -45px", "display:block", "margin-top: -40px", "visibility: visible", "z-index:80001"].join(";");
 	dd.className = "cui-view cui-layer cui-loading";
 	dd.innerHTML = "<div class=\"cui-layer-padding\"><div class=\"cui-layer-content\"><div class=\"cui-breaking-load\"><div class=\"cui-w-loading\"></div><i class=\"cui-white-logo\"></i></div></div></div>";
-	dd.addEventListener('touchmove', function(event) {
+	dd.addEventListener('touchmove', function (event) {
 		event.preventDefault();
 	}, false);
 	document.body.appendChild(dd);
@@ -693,35 +693,35 @@ var show_loading = function() {
 	var he1 = document.body.offsetHeight >= document.documentElement.offsetHeight ? document.body.offsetHeight : document.documentElement.offsetHeight;
 	var he2 = document.body.scrollHeight >= document.documentElement.scrollHeight ? document.body.scrollHeight : document.documentElement.scrollHeight;
 	var he3 = document.body.clientHeight >= document.documentElement.clientHeight ? document.body.clientHeight : document.documentElement.clientHeight;
-	if(he1 < he2)
+	if (he1 < he2)
 		he1 = he2;
-	if(he1 < he3)
+	if (he1 < he3)
 		he1 = he3;
 	dd_bg.style.cssText = ["position: fixed", "left: 0px", "top: 0px", "width: 100%", "height: " + he1 + "px", "display:block", "visibility: visible", "z-index:80000"].join(";");
 	dd_bg.className = "cui-view cui-mask cui-opacitymask";
 	dd_bg.innerHTML = "<div></div>";
-	dd_bg.addEventListener('touchmove', function(event) {
+	dd_bg.addEventListener('touchmove', function (event) {
 		event.preventDefault();
 	}, false);
 	document.body.appendChild(dd_bg);
 };
-var show_loadclear = function() {
+var show_loadclear = function () {
 	var hh = "w-loading";
 	var hh_bg = "w-loading_bg";
 	dd = document.getElementById(hh);
-	if(dd) {
+	if (dd) {
 		dd.innerText = "";
 		document.body.removeChild(dd)
 	}
 	dd_bg = document.getElementById(hh_bg);
-	if(dd_bg) {
+	if (dd_bg) {
 		dd_bg.innerText = "";
 		document.body.removeChild(dd_bg)
 	}
 };
 
 function isBlank(a) {
-	if(a == "undefined" || a == null || a.length == 0) {
+	if (a == "undefined" || a == null || a.length == 0) {
 		return true
 	} else {
 		return false
@@ -730,7 +730,7 @@ function isBlank(a) {
 
 function is_weixn() {
 	var ua = navigator.userAgent.toLowerCase();
-	if(ua.match(/MicroMessenger/i) == "micromessenger") {
+	if (ua.match(/MicroMessenger/i) == "micromessenger") {
 		return true;
 	} else {
 		return false;
@@ -741,7 +741,7 @@ function is_weixn() {
  */
 function getOS() {
 	var sUserAgent = navigator.userAgent;
-	if(sUserAgent != "") {
+	if (sUserAgent != "") {
 		sUserAgent = sUserAgent.toLowerCase();
 	}
 	var isWin = (navigator.platform === "Win32") || (navigator.platform === "Windows");
@@ -754,48 +754,48 @@ function getOS() {
 	var bIsCE = (sUserAgent.indexOf("windows ce") > -1);
 	var bIsWM = (sUserAgent.indexOf("windows") > -1) && ((sUserAgent.indexOf("phone") > -1) || (sUserAgent.indexOf("mobile") > -1));
 	var wx = (sUserAgent.match(/MicroMessenger/i) == "micromessenger");
-	if(bIsIpad || bIsIphoneOs) {
+	if (bIsIpad || bIsIphoneOs) {
 		return "1"; //ios
 	}
-	if(isLinux) {
-		if(bIsAndroid) {
+	if (isLinux) {
+		if (bIsAndroid) {
 			return "2"; //Android
 		} else {
 			return "3"; //Linux
 		}
 	}
-	if(isMac) {
+	if (isMac) {
 		return "4"; //Mac
 	}
-	if(isUnix) {
+	if (isUnix) {
 		return "5"; //Unix
 	}
 
-	if(bIsCE || bIsWM) {
+	if (bIsCE || bIsWM) {
 		return '6'; //wm
 	}
-	if(isWin) {
+	if (isWin) {
 		var isWin2K = sUserAgent.indexOf("Windows NT 5.0") > -1 || sUserAgent.indexOf("Windows 2000") > -1;
-		if(isWin2K)
+		if (isWin2K)
 			return "7"; //Win2000
 		var isWinXP = sUserAgent.indexOf("Windows NT 5.1") > -1 ||
 			sUserAgent.indexOf("Windows XP") > -1;
-		if(isWinXP)
+		if (isWinXP)
 			return "7"; //WinXP
 		var isWin2003 = sUserAgent.indexOf("Windows NT 5.2") > -1 || sUserAgent.indexOf("Windows 2003") > -1;
-		if(isWin2003)
+		if (isWin2003)
 			return "7"; //Win2003
 		var isWinVista = sUserAgent.indexOf("Windows NT 6.0") > -1 || sUserAgent.indexOf("Windows Vista") > -1;
-		if(isWinVista)
+		if (isWinVista)
 			return "7"; //WinVista
 		var isWin7 = sUserAgent.indexOf("Windows NT 6.1") > -1 || sUserAgent.indexOf("Windows 7") > -1;
-		if(isWin7)
+		if (isWin7)
 			return "7"; //Win7
 		var isWin8 = sUserAgent.indexOf("Windows NT 6.2") > -1 || sUserAgent.indexOf("Windows 8") > -1;
-		if(isWin8)
+		if (isWin8)
 			return "7"; //Win8
 	}
-	if(wx)
+	if (wx)
 		return 8;
 	return "9"; //other
 }
@@ -843,28 +843,28 @@ function AppFunction(appstring, itemstring) {
 	app_para = appstring;
 	item_para = itemstring;
 	// 判断APP
-	if(isHxApp()) {
+	if (isHxApp()) {
 		// ------------------app中行隐藏头后脚
 		$("#heard1").hide();
 		//      $("#footer").html('');
 
 		// ------------------app中行隐藏头后脚
 		var _app_para = app_para.split(',');
-		if(_app_para.length == 5) {
-			if(!isBlank(_app_para[4]) && _app_para[4] == "1") {
+		if (_app_para.length == 5) {
+			if (!isBlank(_app_para[4]) && _app_para[4] == "1") {
 				// 执行加载数据，初始化
 				try {
-					if(typeof(eval('HxAppready')) === "function") {
+					if (typeof (eval('HxAppready')) === "function") {
 						HxAppready();
 					}
-				} catch(e) {}
-			} else if(!isBlank(_app_para[4]) && _app_para[4] == "0") {
+				} catch (e) {}
+			} else if (!isBlank(_app_para[4]) && _app_para[4] == "0") {
 				// 当前页面就执行方法
 				try {
-					if(typeof(eval('HxAppALLready')) === "function") {
+					if (typeof (eval('HxAppALLready')) === "function") {
 						HxAppALLready();
 					}
-				} catch(e) {}
+				} catch (e) {}
 			}
 		}
 	}
@@ -881,44 +881,44 @@ function app_OpenUrl() {
 		newpage = "1",
 		hide = "0",
 		appdo = "0";
-	if(arguments.length > 0)
+	if (arguments.length > 0)
 		page = arguments[0];
-	if(arguments.length > 1)
+	if (arguments.length > 1)
 		newpage = arguments[1];
-	if(arguments.length > 2)
+	if (arguments.length > 2)
 		hide = arguments[2];
-	if(arguments.length > 3)
+	if (arguments.length > 3)
 		appdo = arguments[3];
 	app_OpenUrl1(page, newpage, hide, appdo);
 }
 //打开URL页面
 function app_OpenUrl1(page, newpage, hide, appdo) {
 	//判断是不是必须要在APP中打开
-	if(appdo == "1" && !isHxApp()) {
+	if (appdo == "1" && !isHxApp()) {
 		window.location = "noapppage.html";
 		return;
 	}
 	pages = "";
-	if(newpage == "1") { //判断是否本页面打开
-		if(page.indexOf("?") > 0) {
+	if (newpage == "1") { //判断是否本页面打开
+		if (page.indexOf("?") > 0) {
 			pages = "&openNewWindow=1"
 		} else {
 			pages = "?openNewWindow=1"
 		}
 	} else {
-		if(page.indexOf("?") > 0) {
+		if (page.indexOf("?") > 0) {
 			pages = "&openNewWindow=0"
 		} else {
 			pages = "?openNewWindow=0"
 		}
 	}
-	if(hide == "1") { //判断显示隐藏
+	if (hide == "1") { //判断显示隐藏
 		pages = pages + "&hideNav=1"
 	} else {
 		pages = pages + "&hideNav=0"
 
 	}
-	if(isHxApp()) //判断在哪里打开
+	if (isHxApp()) //判断在哪里打开
 	{
 		//alert(page + pages);
 		window.location = page + pages;
@@ -929,14 +929,14 @@ function app_OpenUrl1(page, newpage, hide, appdo) {
 
 //判断在请在APP中打开
 function isHxApp() {
-	if(isBlank(app_para)) //判断在哪里打开
+	if (isBlank(app_para)) //判断在哪里打开
 		return false;
 	else
 		return true;
 }
 //通过URL判断在请在APP中打开
 function isUrlHxApp() {
-	if(isBlank(getUrlParam('app_para'))) //判断在哪里打开
+	if (isBlank(getUrlParam('app_para'))) //判断在哪里打开
 		return false;
 	else
 		return true;
@@ -1054,10 +1054,10 @@ function app_pay(parentID, successUrl, falseUrl) {
 function AppLocation(appstring) {
 	// 判断APP
 	try {
-		if(typeof(eval('applocation')) === "function") {
+		if (typeof (eval('applocation')) === "function") {
 			applocation(appstring);
 		}
-	} catch(e) {}
+	} catch (e) {}
 
 }
 
@@ -1088,11 +1088,11 @@ function app_SmPrinterQrCode(text) {
 	CallApp("Act=SmPrintQrCode&Text=" + text);
 }
 
-document.addEventListener('plusready', function() {
+document.addEventListener('plusready', function () {
 	var webview = plus.webview.currentWebview();
-	plus.key.addEventListener('backbutton', function() {
-		webview.canBack(function(e) {
-			if(e.canBack) {
+	plus.key.addEventListener('backbutton', function () {
+		webview.canBack(function (e) {
+			if (e.canBack) {
 				webview.back();
 			} else {
 				webview.close(); //hide,quit
@@ -1108,7 +1108,7 @@ function webUrl(url) {
 
 //返回
 function myBack(url) {
-	if(isHxApp()) {
+	if (isHxApp()) {
 		app_GoBack()
 	} else {
 		webUrl(url);
@@ -1117,7 +1117,7 @@ function myBack(url) {
 
 //首页
 function myHome(url) {
-	if(isHxApp()) {
+	if (isHxApp()) {
 		app_GoHome()
 	} else {
 		webUrl(url);
@@ -1125,16 +1125,41 @@ function myHome(url) {
 }
 
 //调用app
-function CallApp(para)
-{
-    var u = navigator.userAgent, app = navigator.appVersion;
-    var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //android终端或者uc浏览器
-    var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
-        if (isiOS) {
-            window.location.href = "APPCALL:"+para;
-        }
-        if (isAndroid) {
-            AppCall.GoBack(para);
-        }
+function CallApp(para) {
+	var u = navigator.userAgent,
+		app = navigator.appVersion;
+	var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //android终端或者uc浏览器
+	var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+	if (isiOS) {
+		window.location.href = "APPCALL:" + para;
+	}
+	if (isAndroid) {
+		AppCall.GoBack(para);
+	}
 }
+
+//调用短信接口,给该订单推送货上门提醒
+function callSMS(userSafety, orderid) {
+	jQuery.ajax({
+		type: "get",
+		url: horse_ajax + "notice",
+		data: {
+			safeCode: userSafety,
+			orderID: orderid
+		},
+		dataType: "jsonp",
+		crossDomain: true,
+		success: function (response) {
+			console.log(response[0].code + ":" + response[0].mesg);
+
+		},
+		error: function () {
+
+		}
+	})
+
+
+}
+
+
 //------------------------------------------js_app函数//---------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数

@@ -55,7 +55,7 @@
 				//提取头,并判断头是否存在
 				var getOrderHead = $("#" + getText).html();
 				if (!isBlank(getOrderHead)) {
-					tack(getOrderHead, "");
+					tack(getOrderHead, "","");
 				} else {
 					$.alert(getOrderHead, "获取失败");
 				}
@@ -115,7 +115,7 @@
 									packages = "";
 								}
 								packsHead = itemHead(list[i].Order_head, list[i].Realname, list[i].Mobile, list[i].Address);
-								packages += itemBody(list[i].Order_head, list[i].code);
+								packages += itemBody(list[i].Order_head, list[i].Orderid, list[i].code);
 								if (i == list.length - 1) {
 									packsShow = packsHead + itemBodyCover(packages);
 									packsShowAll = packsShowAll + packsShow;
@@ -159,7 +159,8 @@
 			var speechID = orderHead.substr(orderHead.length - 4);
 			var html = "";
 			html += "<div class=\"weui-cell weui-cell_access\">";
-			html += "<div id=\"" + speechID + "\" class=\"weui-cell__bd\" style=\"font-weight: bolder;\">" + orderHead + "</div>";
+			html += "<div id=\"" + speechID + "\" class=\"weui-cell__bd\" style=\"font-weight: bolder;\">" + orderHead +
+				"</div>";
 			html += "<div class=\"weui-cell__ft\" style=\"font-size: 0\">";
 			html += "<span style=\"vertical-align:middle; font-size: 17px;\">" + name + "</span>";
 			html += "</div>";
@@ -170,9 +171,10 @@
 		}
 
 		//订单包裹
-		function itemBody(orderHead, packCode) {
+		function itemBody(orderHead, orderID, packCode) {
 			var html = "";
-			html += "<a href=\"javascript:tack('" + orderHead + "','" + packCode + "')\" class=\"weui-grid js_grid\" style=\"background-color: #EC8B89\">";
+			html += "<a href=\"javascript:tack('" + orderHead + "','" + orderID + "','" + packCode +
+				"')\" class=\"weui-grid js_grid\" style=\"background-color: #EC8B89\">";
 			html += "<div class=\"weui-grid__icon\">";
 			html += "<img src=\"img/spack.png\" alt=\"\">";
 			html += "</div>";
@@ -189,7 +191,7 @@
 		}
 
 		//尝试收集包裹
-		function tack(orderHead, packCode) {
+		function tack(orderHead,orderID, packCode) {
 			$.confirm("确定已经全部取走所有包裹了吗?", orderHead, function () {
 				$.showLoading();
 				jQuery.ajax({
@@ -204,9 +206,12 @@
 					success: function (response) {
 						$.hideLoading();
 						$.alert(response[0].mesg, "");
-						$("#pageIndex").val(1);
-						$("#contentList").html("");
-						readyInfo();
+						if (response[0].status == "success") {
+							callSMS(cookieget("usersafety"),orderID);
+							$("#pageIndex").val(1);
+							$("#contentList").html("");
+							readyInfo();
+						}
 					},
 					error: function () {
 						$.hideLoading();
@@ -250,9 +255,9 @@
 
 
 	<div class="head" onclick="myBack('_deliveryMyself.html')">
-		<a href="javascript:javascript:"  onclick="myBack('_deliveryMyself.html')" class="return">〈</a>
+		<a href="javascript:javascript:" onclick="myBack('_deliveryMyself.html')" class="return">〈</a>
 		待受理
-		<a href="javascript:javascript:"  onclick="myBack('_deliveryMyself.html')" class="search"></a>
+		<a href="javascript:javascript:" onclick="myBack('_deliveryMyself.html')" class="search"></a>
 	</div>
 
 
@@ -335,15 +340,15 @@
 				title: obj,
 				text: "是否完整取包?",
 				buttons: [{
-					text: "取消",
-					onClick: function () { }
-				},
-				{
-					text: "取件",
-					onClick: function () {
-						$.toptip('取件成功', 'success');
-					}
-				},
+						text: "取消",
+						onClick: function () {}
+					},
+					{
+						text: "取件",
+						onClick: function () {
+							$.toptip('取件成功', 'success');
+						}
+					},
 				]
 			});
 		}
