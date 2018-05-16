@@ -16,12 +16,19 @@
 		$(document).ready(function () {
 			if (!isUrlHxApp()) {
 				smInfo();
+				setInterval("smInfo()", "10000");
 			}
 		});
 
 		function HxAppready() {
 			smInfo();
+			setInterval("smInfo()", "10000");
 		}
+
+		function timerStart() {
+
+		}
+
 
 		//验证用户身份
 		function IDValid() {
@@ -54,16 +61,35 @@
 						$("#name").html(info[0].name);
 						$("#phone").html(info[0].phone);
 						//统计信息
+
+
 						var collect = list.Table1;
+						console.log(collect);
 						if (collect.length > 0) {
 							$("#countsSign").html(collect[0].sign);
 							$("#countsSelfTake").html(collect[0].selfTake);
 							$("#countsNormal").html(collect[0].normal);
 							$("#countsQuick").html(collect[0].quick);
-							if (collect[0].sign == "0") { $("#countsSign").hide(); }
-							if (collect[0].selfTake == "0") { $("#countsSelfTake").hide(); }
-							if (collect[0].normal == "0") { $("#countsNormal").hide(); }
-							if (collect[0].quick == "0") { $("#countsQuick").hide(); }
+							if (collect[0].sign == "0") {
+								$("#countsSign").hide();
+							} else {
+								$("#countsSign").show();
+							}
+							if (collect[0].selfTake == "0") {
+								$("#countsSelfTake").hide();
+							}else {
+								$("#countsSelfTake").show();
+							}
+							if (collect[0].normal == "0") {
+								$("#countsNormal").hide();
+							}else {
+								$("#countsNormal").show();
+							}
+							if (collect[0].quick == "0") {
+								$("#countsQuick").hide();
+							}else {
+								$("#countsQuick").show();
+							}
 						}
 					}
 					$.hideLoading();
