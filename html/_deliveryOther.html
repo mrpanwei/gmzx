@@ -18,11 +18,13 @@
 		$(document).ready(function () {
 			if (!isUrlHxApp()) {
 				collectInfo();
+				setInterval("smInfo()", "10000");
 			}
 		});
 
 		function HxAppready() {
 			collectInfo();
+			setInterval("smInfo()", "10000");
 		}
 
 		//验证用户身份

@@ -76,6 +76,7 @@
 					success: function(response) {
 						if("success" == response[0].status) {
 							var list = response[0].data;
+							console.log(list);
 							var oldHead = "";
 							var packsHead = "";
 							var packages = "";
@@ -91,7 +92,7 @@
 										packages = "";
 										forCount++;
 									}
-									packsHead = itemHead(list[i].orderHead, list[i].Orderid, list[i].cPhone, list[i].cName, list[i].cAddress);
+									packsHead = itemHead(list[i].orderHead, list[i].orderID, list[i].cPhone, list[i].cName, list[i].cAddress);
 									packages += itemBody(list[i].packageCode);
 									if(i == list.length - 1) {
 										packsShow = "<div id=\"" + list[i].orderHead + "\" onclick=\"sign('" + list[i].orderHead + "')\">" + packsHead + itemBodyCover(packages) + "</div>";
@@ -142,13 +143,14 @@
 					"<div class=\"weui-cell__bd\" style=\"font-weight: bolder;\">" + orderID + "</div>" +
 					"<div class=\"weui-cell__ft\" style=\"font-size: 0\"><span style=\"vertical-align:middle; font-size: 17px;\">" + username + "</span></div></div>" +
 					"<div class=\"weui-cells__title\">" + phone + "</div><div class=\"weui-cells__title\">" + address + "</div>";
+				
 				return html;
 			}
 
 			//订单包裹
 			function itemBody(packCode) {
 				var html = "";
-				html += "<a style=\"\" href=\"#.html\" class=\"weui-grid js_grid\"><div class=\"weui-grid__icon\"><img src=\"img/package.png\" alt=\"\"></div>";
+				html += "<a style=\"\" href=\"javascript:void(0)\" class=\"weui-grid js_grid\"><div class=\"weui-grid__icon\"><img src=\"img/package.png\" alt=\"\"></div>";
 				html += "<p class=\"weui-grid__label\">" + packCode + "</p></a>";
 				return html;
 			}
