@@ -54,18 +54,26 @@
                         if (0 != list[0].ready) {
                             $("#c1").html(list[0].ready);
                             $("#c1").show();
+                        }else{
+                            $("#c1").hide();
                         }
                         if (0 != list[0].beforerun) {
                             $("#c2").html(list[0].beforerun);
                             $("#c2").show();
+                        }else{
+                            $("#c2").hide();
                         }
                         if (0 != list[0].run) {
                             $("#c3").html(list[0].run);
                             $("#c3").show();
+                        }else{
+                            $("#c3").hide();
                         }
                         if (0 != list[0].arrive) {
                             $("#c4").html(list[0].arrive);
                             $("#c4").show();
+                        }else{
+                            $("#c3").show(); 
                         }
                     }
                     $.hideLoading();

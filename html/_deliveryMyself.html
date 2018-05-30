@@ -53,10 +53,12 @@
 						var list = response[0].data;
 						//头信息
 						var info = list.Table;
+						var shoplist = "";
 						for (var i = 0; i < info.length; i++) {
 							$("#groupName").html(info[0].groupName);
-							$("#names").html($("#names").html() + info[i].name + "，");
+							shoplist  = shoplist+ info[i].name + "，";
 						}
+						$("#names").html(shoplist) 
 						//统计信息
 						var collect = list.Table1;
 						if (collect.length > 0) {
@@ -65,12 +67,18 @@
 							$("#v3").html(collect[0].arrive);
 							if (0 != collect[0].ready) {
 								$("#v1").show();
+							}else{
+								$("#v1").hide();
 							}
 							if (0 != collect[0].run) {
 								$("#v2").show();
+							}else{
+								$("#v2").hide();
 							}
 							if (0 != collect[0].arrive) {
 								$("#v3").show();
+							}else{
+								$("#v3").hide();
 							}
 						}
 					}

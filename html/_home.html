@@ -16,11 +16,21 @@
 		$(document).ready(function () {
 			if (!isUrlHxApp()) {
 				riderInfo();
+				getT();
+				setInterval("getT()", "10000");
 			}
 		});
 
 		function HxAppready() {
 			riderInfo();
+			getT();
+			setInterval("getT()", "10000");
+		}
+
+		function getT() {
+			collectInfo1();
+			collectInfo2();
+			collectInfo3();
 		}
 
 		//验证用户身份
@@ -79,6 +89,84 @@
 				//取消操作
 			});
 		}
+
+
+
+		function collectInfo1() {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderLineCollectInfo",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						//统计信息
+						var collect = list.Table1;
+						if (collect.length > 0) {
+							$("#t1").html(collect[0].ready);
+							if (0 != collect[0].ready) {
+								$("#t1").show();
+							} else {
+								$("#t1").hide();
+							}
+						}
+					}
+				},
+				error: function () {}
+			})
+		}
+
+		function collectInfo2() {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderLogisticsCollect",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						$("#t2").html(list[0].ready);
+						if (0 != list[0].ready) {
+							$("#t2").show();
+						} else {
+							$("#t2").hide();
+						}
+					}
+				},
+				error: function () {}
+			})
+		}
+
+		function collectInfo3() {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "riderLogisticsSeller",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						$("#t3").html(list[0].ready);
+						if (0 != list[0].ready) {
+							$("#t3").show();
+						} else {
+							$("#t3").hide();
+						}
+					}
+				},
+				error: function () {}
+			})
+		}
 	</script>
 </head>
 
@@ -97,7 +185,7 @@
 				<p id="phone" style="font-size: 13px;"></p>
 			</div>
 		</div>
-		<div class="weui-cell weui-cell_access">
+		<div class="weui-cell weui-cell_access" style="display: none">
 			<div class="weui-cell__bd">
 				<span style="vertical-align: middle">今日配送</span>
 				<span id="dayTag" class="weui-badge" style="margin-left: 5px;"></span>
@@ -130,25 +218,28 @@
 		<a href="_deliveryMyself.html" class="weui-grid js_grid">
 			<div class="weui-grid__icon">
 				<img src="img/bike.png" alt="">
+				<span id="t1" class="weui-badge" style="margin-left: 45px;display: none; "></span>
 			</div>
 			<p class="weui-grid__label">
-				线路普通派送
+				线路普通
 			</p>
 		</a>
 		<a href="_deliveryOther.html" class="weui-grid js_grid">
 			<div class="weui-grid__icon">
 				<img src="img/motorbike-red.png" alt="">
+				<span id="t2" class="weui-badge" style="margin-left: 45px;display: none; "></span>
 			</div>
 			<p class="weui-grid__label">
-				线路即时派送
+				线路即时
 			</p>
 		</a>
 		<a href="_deliverySeller.html" class="weui-grid js_grid">
 			<div class="weui-grid__icon">
 				<img src="img/moto.png" alt="">
+				<span id="t3" class="weui-badge" style="margin-left: 45px; display: none; "></span>
 			</div>
 			<p class="weui-grid__label">
-				商户即时派送
+				商户即时
 			</p>
 		</a>
 		<a href="javascript:loginOut()" class="weui-grid js_grid">
