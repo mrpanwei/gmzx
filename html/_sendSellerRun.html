@@ -85,7 +85,6 @@
 						if (response[0].status == "success") {
 							$("#" + $("#selectOrder").val()).remove();
 						}
-						readyInfo();
 					},
 					error: function () {
 
@@ -109,7 +108,6 @@
 						$.alert(response[0].mesg, "");
 						if (response[0].status == "success") {
 							$("#" + $("#selectOrder").val()).remove();
-							readyInfo();
 						}
 
 					},
@@ -170,7 +168,7 @@
 								}
 							}
 						});
-						$("#contentList").append(packsShowAll);
+						$("#contentList").html(packsShowAll);
 						if (forCount < 5) {
 							$("#more").hide();
 						}

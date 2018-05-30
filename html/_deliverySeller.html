@@ -16,13 +16,13 @@
         $(document).ready(function () {
             if (!isUrlHxApp()) {
                 collectInfo();
-                setInterval("collectInfo()", "10000");
+                setInterval("collectInfo()", "3000");
             }
         });
 
         function HxAppready() {
             collectInfo();
-            setInterval("collectInfo()", "10000");
+            setInterval("collectInfo()", "3000");
         }
 
         //验证用户身份
