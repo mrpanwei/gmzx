@@ -50,7 +50,7 @@
                 success: function (response) {
                     if ("success" == response[0].status) {
                         var list = response[0].data;
-                        console.log(list)
+                      //  console.log(list)
                         if (0 != list[0].ready) {
                             $("#c1").html(list[0].ready);
                             $("#c1").show();
@@ -73,7 +73,7 @@
                             $("#c4").html(list[0].arrive);
                             $("#c4").show();
                         }else{
-                            $("#c3").show(); 
+                            $("#c4").hide(); 
                         }
                     }
                     $.hideLoading();

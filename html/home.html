@@ -65,7 +65,6 @@
 		function shopInfo() {
 			//强制关闭
 			$('#videoId').get(0).pause();
-
 			IDValid();
 			$.showLoading();
 			jQuery.ajax({
@@ -79,7 +78,6 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var info = response[0].data;
-						//	console.log(info);
 						$("#name").html(info[0].name);
 						$("#linkName").html(info[0].linkman);
 						$("#address").html(info[0].address);
@@ -113,24 +111,23 @@
 							$("#counts").show();
 							notice(cs[0]);
 							dingdong();
-						}else{
+						} else {
 							$("#counts").hide();
 						}
 						if (cs[1] != 0) {
 							$("#counts1").show();
-						}
-						else{
-							$("#counts1").hide();				
+						} else {
+							$("#counts1").hide();
 						}
 						if (cs[2] != 0) {
 							$("#counts2").show();
-						}else{
-							$("#counts2").hide();				
+						} else {
+							$("#counts2").hide();
 						}
 						if (cs[3] != 0) {
 							$("#counts3").show();
-						}else{
-							$("#counts3").hide();				
+						} else {
+							$("#counts3").hide();
 						}
 					}
 					$.hideLoading();
@@ -161,7 +158,9 @@
 			if (isHxApp()) {
 				app_PlaySound();
 			} else {
-				$('#videoId').get(0).play();
+				if (!isBlank($('#videoId').get(0))) {
+					$('#videoId').get(0).play();
+				}
 			}
 		}
 	</script>
