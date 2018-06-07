@@ -133,7 +133,7 @@
                     var packsShowAll = $("#contentList").html();
                     if ("success" == response[0].status) {
                         var list = response[0].data;
-                        console.log(list);
+                    //    console.log(list);
                         var oldHead = "";
                         var packsHead = "";
                         var packages = "";
@@ -145,7 +145,7 @@
                                     packsShowAll = packsShowAll + packsShow;
                                     packages = "";
                                 }
-                                packsHead = headMake(array[index].orderHead, array[index].cName, array[index].cPhone, array[index].cAddress, array[index].requireDate);
+                                packsHead = headMake(array[index].checkCode,array[index].orderHead, array[index].cName, array[index].cPhone, array[index].cAddress, array[index].requireDate);
                                 packages += bodyMake(array[index].sp_short_name, array[index].num);
                                 if (index == array.length - 1) {
                                     packsShow = packsHead + packages;
@@ -181,7 +181,7 @@
             $("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
             readyInfo();
         }
-        function finishTask(obj) {
+        function finishTask(obj,checkCode) {
             $("#selectOrder").val(obj);
             $.modal({
                 title: obj,
@@ -206,17 +206,32 @@
                 {
                     text: "签收",
                     onClick: function () {
-                        chooseFinish(obj);
+                        var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
+							$.prompt({
+								text: "",
+								title: checkCode,
+								onOK: function (text) {
+									//保证输入的取货验证码和系统提供的是一直
+									if (text == checkCode) {
+										console.log("提交结算：" + orderHead + ":" + text);
+                                       chooseFinish(obj);
+									}
+								},
+								onCancel: function () {
+									console.log("取消了");
+								},
+								input: clientCode
+							}); 
                     }
                 },
                 ]
             });
         }
 
-        function headMake(orderHead, cName, cPhone, cAddress, requireDate) {
+        function headMake(checkCode,orderHead, cName, cPhone, cAddress, requireDate) {
             var html = "";
             html += "<div id=\"" + orderHead + "\">";
-            html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"finishTask('" + orderHead + "')\">";
+            html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"finishTask('" + orderHead + "','"+checkCode+"')\">";
             html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
             html += "<img src=\"img/sclient.png\" style=\"width: 50px;display: block\">";
             html += "</div>";
