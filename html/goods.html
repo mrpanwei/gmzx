@@ -77,8 +77,10 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var info = response[0].data;
+						console.log(info);
 						var thisHtml = "";
 						var forCount = 0;
+
 						info.forEach(function (value, index, array) {
 							forCount++;
 							//								console.log(array[index]);
@@ -147,7 +149,7 @@
 			var html = "";
 			html += "<a href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">";
 			html += "<div class=\"weui-media-box__hd\">";
-			html += "<img class=\"weui-media-box__thumb\" src=\"http://img.554488.com/normal/" + sp_img_url + "\" alt=\"\">";
+			html += "<img class=\"weui-media-box__thumb\" src=\"http://img.dtgmzx.cn/big/" + sp_img_url + "\" alt=\"\">";
 			html += "</div>";
 			html += "<div class=\"weui-media-box__bd\">";
 			html += "<h4 class=\"weui-media-box__title\">";

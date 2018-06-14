@@ -75,7 +75,7 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-						console.log(list)
+					//	console.log(list)
 						var oldHead = "";
 						var packsHead = "";
 						var packages = "";
@@ -199,11 +199,12 @@
 					{
 						text: "结单",
 						onClick: function () {
-
 							var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
+							//需求变动，如送货上门则不需要输入提货码
+							clientCode = checkCode;
 							$.prompt({
 								text: "",
-								title: checkCode,
+								title: "请输入提货码",
 								onOK: function (text) {
 									//保证输入的取货验证码和系统提供的是一直
 									if (text == checkCode) {

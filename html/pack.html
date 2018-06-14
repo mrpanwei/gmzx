@@ -54,9 +54,11 @@
 								if (htmlH.length > 0) {
 									htmlAll = htmlAll + htmlH + htmlB + htmlF;
 								}
-								htmlH = productHead(list[i].requireDate, list[i].orderHead, list[i].cName, list[i].cPhone, list[i].cAddress, list[i].sendType, list[i].ifMySelf);
+								htmlH = productHead(list[i].requireDate, list[i].orderHead, list[i].cName, list[i].cPhone, list[i].cAddress,
+									list[i].sendType, list[i].ifMySelf);
 								htmlF = productFoot(list[i].cRemark, list[i].orderHead, list[i].sendType)
-								htmlB = productBody(list[i].orderHead, list[i].id, list[i].sp_name, list[i].sp_img_url, list[i].sp_xhgg_sm, list[i].num, list[i].flag);
+								htmlB = productBody(list[i].orderHead, list[i].id, list[i].sp_name, list[i].sp_img_url, list[i].sp_xhgg_sm,
+									list[i].num, list[i].flag);
 								if (i == list.length - 1) {
 									htmlAll = htmlAll + htmlH + htmlB + htmlF;
 									htmlH = "";
@@ -65,7 +67,8 @@
 								}
 								oldHead = list[i].orderHead;
 							} else {
-								htmlB = htmlB + productBody(list[i].orderHead, list[i].id, list[i].sp_name, list[i].sp_img_url, list[i].sp_xhgg_sm, list[i].num, list[i].flag);
+								htmlB = htmlB + productBody(list[i].orderHead, list[i].id, list[i].sp_name, list[i].sp_img_url, list[i].sp_xhgg_sm,
+									list[i].num, list[i].flag);
 								if (i == list.length - 1) {
 									htmlAll = htmlAll + htmlH + htmlB + htmlF;
 									htmlH = "";
@@ -94,8 +97,6 @@
 				}
 			}
 		}
-
-
 	</script>
 	<style>
 		.head {
@@ -262,6 +263,7 @@
 						$.hideLoading();
 						if ("success" == response[0].status) {
 							$.toast("拒收订单成功", "forbidden");
+							callSMSRefuse(cookieget("usersafety"), orderHead);
 							$("#" + orderHead).remove();
 						} else {
 							$.toast(response[0].mesg, "forbidden");
@@ -321,7 +323,7 @@
 						$.toast("订单未打包完毕", "forbidden");
 					}
 				},
-				error: function () { }
+				error: function () {}
 			})
 			//				$.modal({
 			//					title: orderHead,
@@ -385,7 +387,7 @@
 							$.toast(response[0].mesg, "forbidden");
 						}
 					},
-					error: function () { }
+					error: function () {}
 				})
 			}, function () {
 				//取消操作
@@ -409,7 +411,7 @@
 						$("#" + orderHead).remove();
 					}
 				},
-				error: function () { }
+				error: function () {}
 			})
 		}
 
@@ -453,7 +455,7 @@
 						$.toptip(response[0].mesg, 'error');
 					}
 				},
-				error: function () { }
+				error: function () {}
 			})
 		}
 
@@ -463,7 +465,8 @@
 			headHtml += "<div id=\"" + orderHead + "\">";
 
 			headHtml += "<div class=\"weui-cell\" style=\"background-color:#eee\">";
-			headHtml += "<div onclick=\"delay('" + orderHead + "')\" class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
+			headHtml += "<div onclick=\"delay('" + orderHead +
+				"')\" class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
 			if (ifMySelf == 1) {
 				headHtml += "<img src=\"img/self.png\" style=\"width: 50px;display: block\">";
 			} else {
@@ -503,9 +506,13 @@
 			//bodyHtml += "<img src=\"http://img.554488.com/big/" + sp_img_url + "\" alt=\"\" style=\"width: 50px;display: block\">";
 			if (0 == flag) {
 				//					bodyHtml += "<img src=\"img/empty_box.png\" alt=\"\" style=\"width: 50px;display: block\">";
-				bodyHtml += "<div id=\"d" + detailID + "\" style=\"background-color: #;width: 50px;line-height:40px;font-size:40px; text-align:center;;display: block;color:red\">" + num + "</div>";
+				bodyHtml += "<div id=\"d" + detailID +
+					"\" style=\"background-color: #;width: 50px;line-height:40px;font-size:40px; text-align:center;;display: block;color:red\">" +
+					num + "</div>";
 			} else {
-				bodyHtml += "<div id=\"d" + detailID + "\" style=\"width: 50px;line-height:40px;font-size:40px; text-align:center;;display: block;color:#0BB20C\">" + num + "</div>";
+				bodyHtml += "<div id=\"d" + detailID +
+					"\" style=\"width: 50px;line-height:40px;font-size:40px; text-align:center;;display: block;color:#0BB20C\">" + num +
+					"</div>";
 			}
 			bodyHtml += "</div>";
 			bodyHtml += "<div class=\"weui-cell__bd\">";
@@ -532,11 +539,14 @@
 			}
 			//foot2
 			footHtml += "<div class=\"weui-form-preview__ft\">";
-			footHtml += "<a onclick=\"myApply('" + orderHead + "')\" class=\"weui-form-preview__btn weui-form-preview__btn_default\" href=\"javascript:\">拒接</a>";
+			footHtml += "<a onclick=\"myApply('" + orderHead +
+				"')\" class=\"weui-form-preview__btn weui-form-preview__btn_default\" href=\"javascript:\">拒接</a>";
 			if (sendType == "3") {
-				footHtml += "<button type=\"submit\" class=\"weui-form-preview__btn weui-form-preview__btn_primary\" href=\"javascript:\">自提</button>";
+				footHtml +=
+					"<button type=\"submit\" class=\"weui-form-preview__btn weui-form-preview__btn_primary\" href=\"javascript:\">自提</button>";
 			} else {
-				footHtml += "<button onclick=\"sendApply('" + orderHead + "','" + sendType + "')\" type=\"submit\" class=\"weui-form-preview__btn weui-form-preview__btn_primary\" href=\"javascript:\">配送</button>";
+				footHtml += "<button onclick=\"sendApply('" + orderHead + "','" + sendType +
+					"')\" type=\"submit\" class=\"weui-form-preview__btn weui-form-preview__btn_primary\" href=\"javascript:\">配送</button>";
 			}
 			footHtml += "</div>";
 

@@ -154,8 +154,8 @@
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 								}
-								packsHead = itemHead(list[i].orderHead, list[i].cName, list[i].cPhone, list[i].cAddress);
-								packages += itemBody(list[i].orderHead, list[i].code);
+								packsHead = itemHead(list[i].orderHead, list[i].cName, list[i].cPhone, list[i].cAddress,list[i].cLocation);
+								packages += itemBody(list[i].orderHead, list[i].code,list[i].checkCode);
 								if (i == list.length - 1) {
 									packsShow = packsHead + itemBodyCover(packages);
 									packsShowAll = packsShowAll + packsShow;
@@ -165,7 +165,7 @@
 								oldHead = list[i].orderHead;
 							} else {
 								//如果是同一个订单的话，则处理包裹
-								packages += itemBody(list[i].orderHead, list[i].code);
+								packages += itemBody(list[i].orderHead, list[i].code,list[i].checkCode);
 								if (i == list.length - 1) {
 									packsShow = packsHead + itemBodyCover(packages);
 									packsShowAll = packsShowAll + packsShow;
@@ -195,7 +195,7 @@
 		}
 
 		//订单头信息
-		function itemHead(orderHead, name, phone, address) {
+		function itemHead(orderHead, name, phone, address,position) {
 			var html = "";
 			html += "<div class=\"weui-cell weui-cell_access\">";
 			html += "<div class=\"weui-cell__bd\" style=\"font-weight: bolder;\">" + orderHead + "</div>";
@@ -203,15 +203,45 @@
 			html += "<span style=\"vertical-align:middle; font-size: 17px;\">" + name + "</span>";
 			html += "</div>";
 			html += "</div>";
-			html += "<div class=\"weui-cells__title\">" + phone + "</div>";
-			html += "<div class=\"weui-cells__title\">" + address + "</div>";
+			html += "<div onclick=\"tryNavigation('" + position + "','" + address + "')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + address + "</div>";
+			html += "<div  onclick=\"call('" + phone + "')\" class=\"weui-cells__title\">联系号码：" + phone + "</div>";
 			return html;
 		}
 
+		function call(phone) {
+				if(!isNaN(phone)) {
+					if(isHxApp()) {
+						app_Tel(phone);
+					} else {
+                        $.alert("tel:" + phone);
+					}
+				}
+			}
+
+		function tryNavigation(gps, address) {
+			$.confirm("确定导航，否则取消", address, function () {
+				navigation(gps, address);
+			});
+		}
+
+		//导航
+		function navigation(gps, address) {
+			var lat = gps.split(',')[0];
+			var lng = gps.split(',')[1];
+			if (!isBlank(lat) && !isBlank(lng) && !isBlank(address)) {
+				if (isHxApp()) {
+					app_OpenMap(lng, lat, address);
+				} else {
+					$.alert(address, gps);
+				}
+			}
+		}
+
 		//订单包裹
-		function itemBody(orderHead, packCode) {
+		function itemBody(orderHead, packCode,checkCode) {
+	
 			var html = "";
-			html += "<a href=\"javascript:dealOrder('" + orderHead + "','" + packCode + "')\" class=\"weui-grid js_grid\" style=\"background-color: #EC8B89\">";
+			html += "<a href=\"javascript:dealOrder('" + orderHead + "','" + packCode + "','"+checkCode+"')\" class=\"weui-grid js_grid\" style=\"background-color: #EC8B89\">";
 			html += "<div class=\"weui-grid__icon\">";
 			html += "<img src=\"img/spack.png\" alt=\"\">";
 			html += "</div>";
@@ -262,7 +292,7 @@
 	
 	<div class="head" onclick="myBack('_deliveryMyself.html')">
 		<a href="javascript:javascript:"  onclick="myBack('_deliveryMyself.html')" class="return">〈</a>
-		已取货
+		配送中
 		<a href="javascript:javascript:"  onclick="myBack('_deliveryMyself.html')" class="search"></a>
 	</div>
 
@@ -281,7 +311,8 @@
 		});
 
 		//送达以后处理订单
-		function dealOrder(obj, packCode) {
+		function dealOrder(obj, packCode,checkCode) {
+			console.log(checkCode);
 			$("#selectOrder").val(obj);
 			$.modal({
 				title: obj,
@@ -306,7 +337,27 @@
 				{
 					text: "签收",
 					onClick: function () {
-						chooseFinish(obj);
+
+						var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
+						 //需求变更，如果需要验证码，则注释下列一行
+						 clientCode = checkCode;
+							$.prompt({
+								text: "",
+								title: "请输入提货码",
+								onOK: function (text) {
+									//保证输入的取货验证码和系统提供的是一直
+									if (text == checkCode) {
+										console.log("提交结算：" + obj + ":" + text);
+										chooseFinish(obj);
+									}else {
+										$.alert("请输入正确的提货码", "国贸在线");
+									}
+								},
+								onCancel: function () {
+									console.log("取消了");
+								},
+								input: clientCode
+							});
 					}
 				},
 				]

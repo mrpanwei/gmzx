@@ -63,7 +63,7 @@
                         });
                     }
                 },
-                error: function () { }
+                error: function () {}
             })
         }
 
@@ -133,7 +133,7 @@
                     var packsShowAll = $("#contentList").html();
                     if ("success" == response[0].status) {
                         var list = response[0].data;
-                    //    console.log(list);
+                        console.log(list);
                         var oldHead = "";
                         var packsHead = "";
                         var packages = "";
@@ -141,11 +141,16 @@
                         list.forEach(function (value, index, array) {
                             if (oldHead != array[index].orderHead) {
                                 if (packsHead.length > 0) {
-                                    packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+                                    packsShow = packsHead + packages + footMake(array[index-1].cPhone,
+                                        array[index-1].cName,
+                                        array[index-1].cAddress, array[index-1].cLocation, array[
+                                            index-1].Remark);
                                     packsShowAll = packsShowAll + packsShow;
                                     packages = "";
                                 }
-                                packsHead = headMake(array[index].checkCode,array[index].orderHead, array[index].cName, array[index].cPhone, array[index].cAddress, array[index].requireDate);
+                                packsHead = headMake(array[index].checkCode, array[index].orderHead,
+                                    array[index].cName, array[index].cPhone, array[index].cAddress,
+                                    array[index].requireDate);
                                 packages += bodyMake(array[index].sp_short_name, array[index].num);
                                 if (index == array.length - 1) {
                                     packsShow = packsHead + packages;
@@ -157,7 +162,10 @@
                             } else {
                                 packages += bodyMake(array[index].sp_short_name, array[index].num);
                                 if (index == array.length - 1) {
-                                    packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+                                    packsShow = packsHead + packages + footMake(array[index].cPhone,
+                                        array[index].cName,
+                                        array[index].cAddress, array[index].cLocation, array[
+                                            index].Remark);
                                     packsShowAll = packsShowAll + packsShow;
                                     packsShow = "";
                                     packsHead = "";
@@ -181,57 +189,64 @@
             $("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
             readyInfo();
         }
-        function finishTask(obj,checkCode) {
+
+        function finishTask(obj, checkCode) {
             $("#selectOrder").val(obj);
             $.modal({
                 title: obj,
                 text: "是否送达?",
                 buttons: [{
-                    text: "拒收",
-                    className: "default",
-                    onClick: function () {
-                        $.actions({
-                            title: "【请选择客户拒收的原因】",
-                            onClose: function () {
+                        text: "拒收",
+                        className: "default",
+                        onClick: function () {
+                            $.actions({
+                                title: "【请选择客户拒收的原因】",
+                                onClose: function () {
 
-                            },
-                            actions: gridArrayData
-                        });
-                    }
-                },
-                {
-                    text: "取消",
-                    onClick: function () { }
-                },
-                {
-                    text: "签收",
-                    onClick: function () {
-                        var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
-							$.prompt({
-								text: "",
-								title: checkCode,
-								onOK: function (text) {
-									//保证输入的取货验证码和系统提供的是一直
-									if (text == checkCode) {
-										console.log("提交结算：" + orderHead + ":" + text);
-                                       chooseFinish(obj);
+                                },
+                                actions: gridArrayData
+                            });
+                        }
+                    },
+                    {
+                        text: "取消",
+                        onClick: function () {}
+                    },
+                    {
+                        text: "签收",
+                        onClick: function () {
+                            var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
+                            //需求变更，如果需要验证码，则注释下列一行
+                            clientCode = checkCode;
+                            $.prompt({
+                                text: "",
+                                title: "请输入提货码",
+                                onOK: function (text) {
+                                    //保证输入的取货验证码和系统提供的是一直
+                                    if (text == checkCode) {
+                                        console.log("提交结算：" + orderHead + ":" + text);
+                                        chooseFinish(obj);
+                                    }else {
+										$.alert("请输入正确的提货码", "国贸在线");
 									}
-								},
-								onCancel: function () {
-									console.log("取消了");
-								},
-								input: clientCode
-							}); 
-                    }
-                },
+                                },
+                                onCancel: function () {
+                                    console.log("取消了");
+                                },
+                                input: clientCode
+                            });
+                        }
+                    },
                 ]
             });
         }
 
-        function headMake(checkCode,orderHead, cName, cPhone, cAddress, requireDate) {
+        function headMake(checkCode, orderHead, cName, cPhone, cAddress, requireDate) {
             var html = "";
             html += "<div id=\"" + orderHead + "\">";
-            html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"finishTask('" + orderHead + "','"+checkCode+"')\">";
+            html +=
+                "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"finishTask('" +
+                orderHead + "','" + checkCode + "')\">";
             html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
             html += "<img src=\"img/sclient.png\" style=\"width: 50px;display: block\">";
             html += "</div>";
@@ -240,7 +255,8 @@
             html += "<p style=\"font-size: 13px;\">" + cAddress + "</p>";
             html += "</div>";
             html += "</div>";
-            html += "<div class=\"weui-cells__title\" style=\"font-size: 18px;color: #19A160;\">请于" + requireDate + "之前送到</div>";
+            html += "<div class=\"weui-cells__title\" style=\"font-size: 18px;color: #19A160;\">请于" + requireDate +
+                "之前送到</div>";
             html += "<div>";
             return html;
         }
@@ -248,7 +264,8 @@
         function bodyMake(sp_short_name, num) {
             var html = "";
             html += "<div class=\"weui-cell\">";
-            html += "<div class=\"weui-cell__hd\"><img src=\"img/sgood.png\" alt=\"\" style=\"width:20px;margin-right:5px;display:block\"></div>";
+            html +=
+                "<div class=\"weui-cell__hd\"><img src=\"img/sgood.png\" alt=\"\" style=\"width:20px;margin-right:5px;display:block\"></div>";
             html += "<div class=\"weui-cell__bd\">";
             html += "<p>" + sp_short_name + "</p>";
             html += "</div>";
@@ -257,10 +274,47 @@
             return html;
         }
 
-        function footMake(name, address, cRemark) {
+        function footMake(cPhone, cName, address, position, Remark) {
             var html = "";
-            html += "</div><div class=\"weui-cells__title\">" + name + " / " + address + " / " + cRemark + "</div></div>";
+            if (Remark == "") {
+                Remark = "备注：无";
+            } else {
+                Remark = "备注：" + Remark;
+            }
+            html += "</div>";
+
+            html += "<div onclick=\"tryNavigation('" + position + "','" + address +
+                "')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + address + "</div><div  onclick=\"call('" + cPhone + "')\"  class=\"weui-cells__title\">&nbsp;" + cName + "：" + cPhone + "</div></div>";
             return html;
+        }
+        
+        function call(phone) {
+				if(!isNaN(phone)) {
+					if(isHxApp()) {
+						app_Tel(phone);
+					} else {
+                        $.alert("tel:" + phone);
+					}
+				}
+			}
+
+        function tryNavigation(gps, address) {
+            $.confirm("确定导航，否则取消", address, function () {
+                navigation(gps, address);
+            });
+        }
+
+        //导航
+        function navigation(gps, address) {
+            var lat = gps.split(',')[0];
+            var lng = gps.split(',')[1];
+            if (!isBlank(lat) && !isBlank(lng) && !isBlank(address)) {
+                if (isHxApp()) {
+                    app_OpenMap(lng, lat, address);
+                } else {
+                    $.alert(address, gps);
+                }
+            }
         }
     </script>
     <style>
@@ -294,9 +348,9 @@
     <input type="hidden" id="pageIndex" value="1" />
 
 
-	<div class="head" onclick="myBack('_deliveryOther.html')">
+    <div class="head" onclick="myBack('_deliveryOther.html')">
         <a href="javascript:javascript:" onclick="myBack('_deliveryOther.html')" class="return">〈</a>
-        待收货
+        配送中
         <a href="javascript:javascript:" onclick="myBack('_deliveryOther.html')" class="search"></a>
     </div>
 

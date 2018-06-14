@@ -60,15 +60,19 @@
 
 							if (oldHead != array[index].orderHead) {
 								if (packsHead.length > 0) {
-									packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+									packsShow = packsHead + packages + footMake(array[index-1].position, array[index-1].name, array[index-1].address,
+										array[index-1].cRemark, array[index-1].mobile);
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 									forCount++;
 								}
-								packsHead = headMake(array[index].orderHead, array[index].cName, array[index].cPhone, array[index].cAddress, array[index].requireDate);
+								packsHead = headMake(array[index].orderHead, array[index].cName, array[index].cPhone, array[index].address,
+									array[index].requireDate);
 								packages += bodyMake(array[index].sp_short_name, array[index].num);
 								if (index == array.length - 1) {
-									packsShow = packsHead + packages;
+									
+									packsShow = packsHead + packages + footMake(array[index].position, array[index].name, array[index].address,
+										array[index].cRemark, array[index].mobile);
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -78,7 +82,8 @@
 							} else {
 								packages += bodyMake(array[index].sp_short_name, array[index].num);
 								if (index == array.length - 1) {
-									packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+									packsShow = packsHead + packages + footMake(array[index].position, array[index].name, array[index].address,
+										array[index].cRemark, array[index].mobile);
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -139,7 +144,8 @@
 		function headMake(orderHead, cName, cPhone, cAddress, requireDate) {
 			var html = "";
 			html += "<div id=\"" + orderHead + "\">";
-			html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"finishTask('" + orderHead + "')\">";
+			html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"finishTask('" +
+				orderHead + "')\">";
 			html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
 			html += "<img src=\"img/sclient.png\" style=\"width: 50px;display: block\">";
 			html += "</div>";
@@ -156,7 +162,8 @@
 		function bodyMake(sp_short_name, num) {
 			var html = "";
 			html += "<div class=\"weui-cell\">";
-			html += "<div class=\"weui-cell__hd\"><img src=\"img/sgood.png\" alt=\"\" style=\"width:20px;margin-right:5px;display:block\"></div>";
+			html +=
+				"<div class=\"weui-cell__hd\"><img src=\"img/sgood.png\" alt=\"\" style=\"width:20px;margin-right:5px;display:block\"></div>";
 			html += "<div class=\"weui-cell__bd\">";
 			html += "<p>" + sp_short_name + "</p>";
 			html += "</div>";
@@ -165,10 +172,47 @@
 			return html;
 		}
 
-		function footMake(name, address, cRemark) {
+		function footMake(location, name, Address, cRemark, mobile) {
 			var html = "";
-			html += "</div><div class=\"weui-cells__title\">" + name + " / " + address + " / " + cRemark + "</div></div>";
+			if (isBlank(cRemark)) {
+				cRemark = "备注：无";
+			} else {
+				cRemark = "备注：" + cRemark;
+			}
+			html += "<div onclick=\"tryNavigation('" + location + "','" + Address +
+				"')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + Address + "</div>";
+			html += "<div onclick=\"call('" + mobile + "')\" class=\"weui-cells__title\">联系电话：" + mobile + "</div>";
 			return html;
+		}
+
+
+		function call(phone) {
+			if (!isNaN(phone)) {
+				if (isHxApp()) {
+					app_Tel(phone);
+				} else {
+					$.alert("tel:" + phone);
+				}
+			}
+		}
+
+		function tryNavigation(gps, address) {
+			$.confirm("确定导航，否则取消", address, function () {
+				navigation(gps, address);
+			});
+		}
+
+		//导航
+		function navigation(gps, address) {
+			var lat = gps.split(',')[0];
+			var lng = gps.split(',')[1];
+			if (!isBlank(lat) && !isBlank(lng) && !isBlank(address)) {
+				if (isHxApp()) {
+					app_OpenMap(lng, lat, address);
+				} else {
+					$.alert(address, gps);
+				}
+			}
 		}
 	</script>
 	<style>
@@ -203,10 +247,10 @@
 
 
 	<div class="head" onclick="myBack('_deliverySeller.html')">
-        <a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="return">〈</a>
-        待取货
-        <a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="search"></a>
-    </div>
+		<a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="return">〈</a>
+		待取货
+		<a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="search"></a>
+	</div>
 
 
 

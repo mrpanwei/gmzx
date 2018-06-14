@@ -18,13 +18,13 @@
 		$(document).ready(function () {
 			if (!isUrlHxApp()) {
 				collectInfo();
-				setInterval("smInfo()", "10000");
+				setInterval("collectInfo()", "3000");
 			}
 		});
 
 		function HxAppready() {
 			collectInfo();
-			setInterval("smInfo()", "10000");
+			setInterval("collectInfo()", "3000");
 		}
 
 		//验证用户身份
@@ -40,7 +40,7 @@
 
 		function collectInfo() {
 			IDValid();
-			$.showLoading();
+		//	$.showLoading();
 			jQuery.ajax({
 				type: "get",
 				url: horse_ajax + "riderLogisticsCollect",
@@ -78,10 +78,10 @@
 							$("#c4").hide();
 						}
 					}
-					$.hideLoading();
+			//		$.hideLoading();
 				},
 				error: function () {
-					$.hideLoading();
+			//		$.hideLoading();
 				}
 			})
 		}

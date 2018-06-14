@@ -100,7 +100,7 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-						//	console.log(list);
+							console.log(list);
 						var oldHead = "";
 						var packsHead = "";
 						var packages = "";
@@ -114,7 +114,7 @@
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 								}
-								packsHead = itemHead(list[i].Order_head, list[i].Realname, list[i].Mobile, list[i].Address);
+								packsHead = itemHead(list[i].Order_head, list[i].Realname, list[i].Mobile, list[i].Address,list[i].shopName, list[i].shopPhone, list[i].shopLocation);
 								packages += itemBody(list[i].Order_head, list[i].Orderid, list[i].code);
 								if (i == list.length - 1) {
 									packsShow = packsHead + itemBodyCover(packages);
@@ -125,7 +125,7 @@
 								oldHead = list[i].Order_head;
 							} else {
 								//如果是同一个订单的话，则处理包裹
-								packages += itemBody(list[i].Order_head, list[i].code);
+								packages += itemBody(list[i].Order_head,  list[i].Orderid,list[i].code);
 								if (i == list.length - 1) {
 									packsShow = packsHead + itemBodyCover(packages);
 									packsShowAll = packsShowAll + packsShow;
@@ -155,7 +155,7 @@
 		}
 
 		//订单头信息
-		function itemHead(orderHead, name, phone, address) {
+		function itemHead(orderHead, name, phone, address,shopName,shopPhone,shopLocation) {
 			var speechID = orderHead.substr(orderHead.length - 4);
 			var html = "";
 			html += "<div class=\"weui-cell weui-cell_access\">";
@@ -165,9 +165,40 @@
 			html += "<span style=\"vertical-align:middle; font-size: 17px;\">" + name + "</span>";
 			html += "</div>";
 			html += "</div>";
-			html += "<div class=\"weui-cells__title\">" + phone + "</div>";
-			html += "<div class=\"weui-cells__title\">" + address + "</div>";
+			html += "<div onclick=\"tryNavigation('" + shopLocation + "','" + shopName + "')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + shopName + "</div>";
+			html += "<div onclick=\"call('" + shopPhone + "')\" class=\"weui-cells__title\">联系电话：" + shopPhone + "</div>";
 			return html;
+		}
+
+		
+		
+		function call(phone) {
+				if(!isNaN(phone)) {
+					if(isHxApp()) {
+						app_Tel(phone);
+					} else {
+                        $.alert("tel:" + phone);
+					}
+				}
+			}
+
+		function tryNavigation(gps, address) {
+			$.confirm("确定导航，否则取消", address, function () {
+				navigation(gps, address);
+			});
+		}
+
+		//导航
+		function navigation(gps, address) {
+			var lat = gps.split('|')[0];
+			var lng = gps.split('|')[1];
+			if (!isBlank(lat) && !isBlank(lng) && !isBlank(address)) {
+				if (isHxApp()) {
+					app_OpenMap(lng, lat, address);
+				} else {
+					$.alert(address, gps);
+				}
+			}
 		}
 
 		//订单包裹

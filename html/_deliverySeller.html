@@ -38,7 +38,7 @@
 
         function collectInfo() {
             IDValid();
-            $.showLoading();
+          //  $.showLoading();
             jQuery.ajax({
                 type: "get",
                 url: horse_ajax + "riderLogisticsSeller",
@@ -76,10 +76,10 @@
                             $("#c4").hide(); 
                         }
                     }
-                    $.hideLoading();
+                //    $.hideLoading();
                 },
                 error: function () {
-                    $.hideLoading();
+             //       $.hideLoading();
                 }
             })
         }

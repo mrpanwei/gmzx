@@ -87,15 +87,17 @@
 								if(oldHead != list[i].orderHead) {
 									//这里是一个新的订单 ,纪录头信息,如有信息了就合成
 									if(packsHead.length > 0) {
-										packsShow = "<div id=\"" + oldHead + "\" onclick=\"sign('" + oldHead + "')\">" + packsHead + itemBodyCover(packages) + "</div>";
+							
+										packsShow = "<div id=\"" + oldHead + "\" onclick=\"sign('" + oldHead + "','"+list[i-1].checkCode+"')\">" + packsHead + itemBodyCover(packages) + "</div>";
 										packsShowAll = packsShowAll + packsShow;
 										packages = "";
 										forCount++;
 									}
 									packsHead = itemHead(list[i].orderHead, list[i].orderID, list[i].cPhone, list[i].cName, list[i].cAddress);
 									packages += itemBody(list[i].packageCode);
+
 									if(i == list.length - 1) {
-										packsShow = "<div id=\"" + list[i].orderHead + "\" onclick=\"sign('" + list[i].orderHead + "')\">" + packsHead + itemBodyCover(packages) + "</div>";
+										packsShow = "<div id=\"" + list[i].orderHead + "\" onclick=\"sign('" + list[i].orderHead + "','"+list[i].checkCode+"')\">" + packsHead + itemBodyCover(packages) + "</div>";
 										packsShowAll = packsShowAll + packsShow;
 										packsShow = "";
 										packsHead = "";
@@ -106,7 +108,7 @@
 									//如果是同一个订单的话，则处理包裹
 									packages += itemBody(list[i].packageCode);
 									if(i == list.length - 1) {
-										packsShow = "<div id=\"" + oldHead + "\" onclick=\"sign('" + oldHead + "')\">" + packsHead + itemBodyCover(oldHead, packages) + "</div>";
+										packsShow = "<div id=\"" + oldHead + "\" onclick=\"sign('" + oldHead + "','"+list[i].checkCode+"')\">" + packsHead + itemBodyCover( packages) + "</div>";
 										packsShowAll = packsShowAll + packsShow;
 										packsShow = "";
 										packsHead = "";
@@ -156,6 +158,7 @@
 
 			//封装包裹
 			function itemBodyCover(body) {
+
 				return "<div class=\"weui-grids\">" + body + "</div>";
 			}
 
@@ -189,11 +192,12 @@
 				})
 			}
 
-			function sign(orderHead) {
+			function sign(orderHead,checkCode) {
+
 				$("#selectOrder").val(orderHead);
 				$.modal({
 					title: orderHead,
-					text: "请与用户核实商品类，并结算订单",
+					text: "请与用户核实商品类，并结算",
 					buttons: [{
 							text: "拒收",
 							className: "default",
@@ -214,8 +218,25 @@
 						{
 							text: "已送达",
 							onClick: function() {
-								console.log("提交结算：" + orderHead);
-								chooseFinish(orderHead);
+							var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
+							//需求变更，送货上门的无须提货码
+							clientCode = checkCode;
+							$.prompt({
+								text: "",
+								title: "请输入提货码",
+								onOK: function (text) {
+									//保证输入的取货验证码和系统提供的是一直
+									if (text == checkCode) {
+										console.log("提交结算：" + orderHead + ":" + text);
+										chooseFinish(orderHead);
+									}
+								},
+								onCancel: function () {
+									console.log("取消了");
+								},
+								input: clientCode
+							});
+
 							}
 						},
 					]

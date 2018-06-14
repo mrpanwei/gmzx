@@ -16,13 +16,13 @@
 		$(document).ready(function () {
 			if (!isUrlHxApp()) {
 				smInfo();
-				setInterval("smInfo()", "10000");
+				setInterval("smInfo()", "3000");
 			}
 		});
 
 		function HxAppready() {
 			smInfo();
-			setInterval("smInfo()", "10000");
+			setInterval("smInfo()", "3000");
 		}
 
 	
@@ -41,7 +41,7 @@
 		//页面初始化
 		function smInfo() {
 			IDValid();
-			$.showLoading();
+		//	$.showLoading();
 			jQuery.ajax({
 				type: "get",
 				url: horse_ajax + "smInfo",
@@ -61,7 +61,7 @@
 
 
 						var collect = list.Table1;
-						console.log(collect);
+					//	console.log(collect);
 						if (collect.length > 0) {
 							$("#countsSign").html(collect[0].sign);
 							$("#countsSelfTake").html(collect[0].selfTake);
@@ -89,10 +89,10 @@
 							}
 						}
 					}
-					$.hideLoading();
+					//$.hideLoading();
 				},
 				error: function () {
-					$.hideLoading();
+					//$.hideLoading();
 				}
 			})
 		}
@@ -121,7 +121,7 @@
 	<div class="weui-cells">
 		<div class="weui-cell" style="padding:10px 10px">
 			<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
-				<img src="img/location.png" style="width: 50px;display: block">
+				<img src="img/client.png" style="width: 50px;display: block">
 			</div>
 			<div class="weui-cell__bd">
 				<p id="name"></p>

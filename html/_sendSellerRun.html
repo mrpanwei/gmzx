@@ -133,7 +133,7 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-						//	console.log(list);
+						console.log(list);
 						var oldHead = "";
 						var packsHead = "";
 						var packages = "";
@@ -144,7 +144,9 @@
 							forCount++;
 							if (oldHead != array[index].orderHead) {
 								if (packsHead.length > 0) {
-									packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+									packsShow = packsHead + packages + footMake(array[index-1].cLocation, array[index-1].name, array[index-1].cAddress,
+										array[index-1].cRemark, array[index-1].cPhone);
+
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 								}
@@ -152,7 +154,8 @@
 									array[index].cAddress, array[index].requireDate);
 								packages += bodyMake(array[index].sp_short_name, array[index].num);
 								if (index == array.length - 1) {
-									packsShow = packsHead + packages;
+									packsShow = packsHead + packages + footMake(array[index].cLocation, array[index].name, array[index].cAddress,
+										array[index].cRemark, array[index].cPhone);
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -161,7 +164,8 @@
 							} else {
 								packages += bodyMake(array[index].sp_short_name, array[index].num);
 								if (index == array.length - 1) {
-									packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+									packsShow = packsHead + packages + footMake(array[index].cLocation, array[index].name, array[index].cAddress,
+										array[index].cRemark, array[index].cPhone);
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -216,14 +220,18 @@
 						text: "签收",
 						onClick: function () {
 							var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
+							//需求变更，如果需要验证码则注释下面1行代码
+							clientCode = checkCode;
 							$.prompt({
 								text: "",
-								title: checkCode,
+								title: "请输入提货码",
 								onOK: function (text) {
 									//保证输入的取货验证码和系统提供的是一直
 									if (text == checkCode) {
 										//console.log("提交结算:::" + obj + ":" + text);
 										chooseFinish(obj);
+									} else {
+										$.alert("请输入正确的提货码", "国贸在线");
 									}
 								},
 								onCancel: function () {
@@ -268,10 +276,44 @@
 			return html;
 		}
 
-		function footMake(name, address, cRemark) {
+		function footMake(cLocation, name, cAddress, cRemark, cPhone) {
 			var html = "";
-			html += "</div><div class=\"weui-cells__title\">" + name + " / " + address + " / " + cRemark + "</div></div>";
+			html += "</div><div onclick=\"tryNavigation('" + cLocation + "','" + cAddress +
+				"')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + cAddress + "</div><div onclick=\"call('" +
+				cPhone + "')\" class=\"weui-cells__title\">联系电话：" + cPhone + "</div></div>";
+			console.log(html);
 			return html;
+
+		}
+
+		function call(phone) {
+			if (!isNaN(phone)) {
+				if (isHxApp()) {
+					app_Tel(phone);
+				} else {
+					$.alert("tel:" + phone);
+				}
+			}
+		}
+
+		function tryNavigation(gps, address) {
+			console.log(gps + ":" + address);
+			$.confirm("确定导航，否则取消", address, function () {
+				navigation(gps, address);
+			});
+		}
+
+		//导航
+		function navigation(gps, address) {
+			var lat = gps.split(',')[0];
+			var lng = gps.split(',')[1];
+			if (!isBlank(lat) && !isBlank(lng) && !isBlank(address)) {
+				if (isHxApp()) {
+					app_OpenMap(lng, lat, address);
+				} else {
+					$.alert(address, gps);
+				}
+			}
 		}
 	</script>
 	<style>
@@ -307,7 +349,7 @@
 
 	<div class="head" onclick="myBack('_deliverySeller.html')">
 		<a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="return">〈</a>
-		待收货
+		配送中
 		<a href="javascript:javascript:" onclick="myBack('_deliverySeller.html')" class="search"></a>
 	</div>
 

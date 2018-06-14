@@ -1,7 +1,7 @@
 //var horse_ajax = 'http://localhost:1818/horseman.asmx/'
-var horse_ajax = "http://localhost:1819/lightning.asmx/";
+//var horse_ajax = "http://localhost:1819/lightning.asmx/";
 
-//var horse_ajax = "http://appser.dtgmzx.cn/lightning.asmx/";
+var horse_ajax = "http://appser.dtgmzx.cn/lightning.asmx/";
 //
 //APP全局变量
 var app_para = "";
@@ -1151,15 +1151,31 @@ function callSMS(userSafety, orderid) {
 		crossDomain: true,
 		success: function (response) {
 			console.log(response[0].code + ":" + response[0].mesg);
-
 		},
 		error: function () {
 
 		}
 	})
-
-
 }
 
+//调用短信接口,告知用户订单被取消提醒
+function callSMSRefuse(userSafety, orderHead) {
+	jQuery.ajax({
+		type: "get",
+		url: horse_ajax + "noticeRefuse",
+		data: {
+			safeCode: userSafety,
+			orderHead: orderHead
+		},
+		dataType: "jsonp",
+		crossDomain: true,
+		success: function (response) {
+			console.log(response[0].code + ":" + response[0].mesg);
+		},
+		error: function () {
+
+		}
+	})
+}
 
 //------------------------------------------js_app函数//---------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数

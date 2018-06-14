@@ -57,7 +57,7 @@
                         list.forEach(function (value, index, array) {
                             if (oldHead != array[index].orderHead) {
                                 if (packsHead.length > 0) {
-                                    packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+                                    packsShow = packsHead + packages + footMake(array[index-1].position, array[index-1].address, array[index-1].cRemark,array[index-1].mobile);
                                     packsShowAll = packsShowAll + packsShow;
                                     packages = "";
                                 }
@@ -73,7 +73,7 @@
                             } else {
                                 packages += bodyMake(array[index].sp_short_name, array[index].num);
                                 if (index == array.length - 1) {
-                                    packsShow = packsHead + packages + footMake(array[index].name, array[index].address, array[index].cRemark);
+                                    packsShow = packsHead + packages + footMake(array[index].position, array[index].address, array[index].cRemark,array[index].mobile);
                                     packsShowAll = packsShowAll + packsShow;
                                     packsShow = "";
                                     packsHead = "";
@@ -160,11 +160,41 @@
             return html;
         }
 
-        function footMake(name, address, cRemark) {
+        function footMake(position, address, cRemark,phone) {
             var html = "";
-            html += "</div><div class=\"weui-cells__title\">" + name + " / " + address + " / " + cRemark + "</div></div>";
+            html += "</div><div onclick=\"tryNavigation('" + position + "','" + address + "')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + address +"</div><div onclick=\"call('" + phone + "')\" class=\"weui-cells__title\">联系电话：" + phone + "</div></div>";
             return html;
         }
+
+        function call(phone) {
+				if(!isNaN(phone)) {
+					if(isHxApp()) {
+						app_Tel(phone);
+					} else {
+                        $.alert("tel:" + phone);
+					}
+				}
+			}
+
+		function tryNavigation(gps, address) {
+			$.confirm("确定导航，否则取消", address, function () {
+				navigation(gps, address);
+			});
+		}
+
+		//导航
+		function navigation(gps, address) {
+			var lat = gps.split(',')[0];
+			var lng = gps.split(',')[1];
+			if (!isBlank(lat) && !isBlank(lng) && !isBlank(address)) {
+				if (isHxApp()) {
+					app_OpenMap(lng, lat, address);
+				} else {
+					$.alert(address, gps);
+				}
+			}
+		}
+
     </script>
     <style>
         .head

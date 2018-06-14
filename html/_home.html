@@ -17,14 +17,14 @@
 			if (!isUrlHxApp()) {
 				riderInfo();
 				getT();
-				setInterval("getT()", "10000");
+				setInterval("getT()", "5000");
 			}
 		});
 
 		function HxAppready() {
 			riderInfo();
 			getT();
-			setInterval("getT()", "10000");
+			setInterval("getT()", "5000");
 		}
 
 		function getT() {
@@ -104,14 +104,17 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-						console.log(list);
+						//console.log(list);
 						//统计信息
 						var collect = list.Table1;
 						if (collect.length > 0) {
-							$("#t1").html(collect[0].ready);
-							if (0 != collect[0].ready) {
-								$("#t1").show();
-							} else {
+
+							var getCount  = parseInt(collect[0].ready)+parseInt(collect[0].run);
+							if(parseInt(getCount)>0)
+							{
+								$("#t1").html(getCount);
+								$("#t1").show();								
+							}else {
 								$("#t1").hide();
 							}
 						}
@@ -133,12 +136,15 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-						$("#t2").html(list[0].ready);
-						if (0 != list[0].ready) {
-							$("#t2").show();
-						} else {
-							$("#t2").hide();
-						}
+						//console.log(list);
+						var getCount  = parseInt(list[0].ready)+parseInt(list[0].run)+parseInt(list[0].beforerun);
+							if(parseInt(getCount)>0)
+							{
+								$("#t2").html(getCount);
+								$("#t2").show();								
+							}else {
+								$("#t2").hide();
+							}
 					}
 				},
 				error: function () {}
@@ -157,12 +163,15 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-						$("#t3").html(list[0].ready);
-						if (0 != list[0].ready) {
-							$("#t3").show();
-						} else {
-							$("#t3").hide();
-						}
+					//	console.log(list);
+						var getCount  = parseInt(list[0].ready)+parseInt(list[0].run)+parseInt(list[0].beforerun);
+							if(parseInt(getCount)>0)
+							{
+								$("#t3").html(getCount);
+								$("#t3").show();								
+							}else {
+								$("#t3").hide();
+							}
 					}
 				},
 				error: function () {}
@@ -174,10 +183,10 @@
 <body ontouchstart>
 
 	<header class='demos-header'>
-		<h1 class="demos-title" style="color: #E15240;">烽火骑手</h1>
+		<h1 class="demos-title" style="color: #E15240;">国贸在线骑手</h1>
 	</header>
 	<div class="weui-cells">
-		<div class="weui-cell" style="padding:10px 10px">
+		<div class="weui-cell" style="">
 			<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
 				<img src="img/moto.png" style="width: 50px;display: block">
 			</div>

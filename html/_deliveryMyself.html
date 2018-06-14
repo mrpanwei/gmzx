@@ -7,7 +7,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-	<meta name="description" content="Write an g.yand in your feed.xml site description.">
+	<meta name="description" content="">
 
 	<link rel="stylesheet" href="../lib/weui.min.css">
 	<link rel="stylesheet" href="../css/jquery-weui.css">
@@ -18,13 +18,13 @@
 		$(document).ready(function () {
 			if (!isUrlHxApp()) {
 				deliveryMyInfo();
-				setInterval("deliveryMyInfo()", "10000");
+				setInterval("deliveryMyInfo()", "3000");
 			}
 		});
 
 		function HxAppready() {
 			deliveryMyInfo();
-			setInterval("deliveryMyInfo()", "10000");
+			setInterval("deliveryMyInfo()", "3000");
 		}
 
 		//验证用户身份
@@ -39,7 +39,7 @@
 		}
 
 		function deliveryMyInfo() {
-			$.showLoading();
+		//	$.showLoading();
 			jQuery.ajax({
 				type: "get",
 				url: horse_ajax + "riderLineCollectInfo",
@@ -82,10 +82,10 @@
 							}
 						}
 					}
-					$.hideLoading();
+				//	$.hideLoading();
 				},
 				error: function () {
-					$.hideLoading();
+				//	$.hideLoading();
 				}
 			})
 		}
