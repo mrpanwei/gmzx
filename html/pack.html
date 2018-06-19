@@ -320,7 +320,7 @@
 					if ("success" == response[0].status) {
 						sendApplyOKNew(orderHead, sendType);
 					} else {
-						$.toast("订单未打包完毕", "forbidden");
+						$.toast(response[0].mesg, "forbidden");
 					}
 				},
 				error: function () {}
