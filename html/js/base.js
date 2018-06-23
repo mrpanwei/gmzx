@@ -1138,6 +1138,82 @@ function CallApp(para) {
 	}
 }
 
+
+//换行 line 行数
+function app_BluetoothPrinterLn(line) {
+	CallApp("Act=GzPrinterLn&Line=" + line);
+}
+//结束打印换行
+function app_BluetoothPrinterEnd() {
+	CallApp("Act=GzPrinterEnd");
+}
+//初始化打印
+function app_BluetoothPrinterStart() {
+	CallApp("Act=GzPrinterStart");
+}
+
+//蓝牙打印 context:打印内容  size:0-12一号字体 12-24二号字体  25-三号  bold:0不加粗 1加粗  gravity:0左对齐1居中2右对齐
+function app_BluetoothPrinter(context, size, bold, gravity) {
+	CallApp("Act=GzPrinter&Context=" + context + "&Size=" + size + "&Bold=" + bold + "&Gravity=" + gravity);
+}
+//打印切换蓝牙设备
+function app_BluetoothPrinterChangeDevice() {
+	CallApp("Act=GzPrinterChangeDevice");
+}
+
+//自封装打印方法
+function blueToothPrint(arr) {
+	if (isAndroid()) {
+		app_BluetoothPrinterStart();
+		app_BluetoothPrinterLn(1);
+		for (j = 0, len = arr.length; j < len; j++) {
+			//商户信息
+			if (0 == j || 1 == j) {
+				app_BluetoothPrinter(arr[j], 17, 1, 1);
+			}
+			//订单信息
+			else if (2 < j && j < 9) {
+				app_BluetoothPrinter(arr[j], 17, 0, 0);
+			}
+			//用户信息
+			else if (j == len - 1) {
+				app_BluetoothPrinter(arr[j], 17, 0, 0);
+			}
+			//商品明细列表
+			else {
+				app_BluetoothPrinter(arr[j], 9, 0, 0);
+			}
+		}
+		app_BluetoothPrinterLn(4);
+		app_BluetoothPrinterEnd();
+	} else {
+		blueToothPrintIOS(arr);
+	}
+}
+
+function blueToothPrintIOS(arr) {
+	// for (j = 0, len = arr.length; j < len; j++) {
+	// 	//商户信息
+	// 	if (0 == j || 1 == j) {
+	// 		app_BluetoothPrinter(arr[j], 17, 1, 1);
+	// 	}
+	// 	//订单信息
+	// 	else if (2 < j && j < 9) {
+	// 		app_BluetoothPrinter(arr[j], 17, 0, 0);
+	// 	}
+	// 	//用户信息
+	// 	else if (j == len - 1) {
+	// 		app_BluetoothPrinter(arr[j], 17, 0, 0);
+	// 	}
+	// 	//商品明细列表
+	// 	else {
+	// 		app_BluetoothPrinter(arr[j], 9, 0, 0);
+	// 	}
+	// }
+	CallApp("Act=GzPrinterIOS&Context=" + arr);
+}
+
+
 //调用短信接口,给该订单推送货上门提醒
 function callSMS(userSafety, orderid) {
 	jQuery.ajax({
@@ -1177,5 +1253,8 @@ function callSMSRefuse(userSafety, orderHead) {
 		}
 	})
 }
+
+
+
 
 //------------------------------------------js_app函数//---------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数

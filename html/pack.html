@@ -217,32 +217,65 @@
 	<script>
 		//延后操作
 		function delay(orderHead) {
-			$.confirm("确定要暂时不处理此订单?", orderHead, function () {
-				IDValid();
-				$.showLoading();
+			$.confirm("确定订单打印?", orderHead, function () {
 				jQuery.ajax({
 					type: "get",
-					url: horse_ajax + "sellerSetOrderWait",
+					url: horse_ajax + "appPrint",
 					data: {
 						safeCode: cookieget("usersafety"),
-						orderHead: orderHead
+						orderID: orderHead,
+						type: "1"
 					},
 					dataType: "jsonp",
 					crossDomain: true,
 					success: function (response) {
 						if ("success" == response[0].status) {
-							$.toast(response[0].mesg, "forbidden");
-							orderInfo();
+							var list = response[0].data;
+							var printList = list.printList;
+							var arr = printList.split(',');
+							blueToothPrint(arr);
 						}
-						$.hideLoading();
 					},
-					error: function () {
-						$.hideLoading();
-					}
+					error: function () {}
 				})
 			}, function () {
 				//取消操作
 			});
+
+
+
+
+
+
+
+
+
+			// $.confirm("确定要暂时不处理此订单?", orderHead, function () {
+			// 	IDValid();
+			// 	$.showLoading();
+			// 	jQuery.ajax({
+			// 		type: "get",
+			// 		url: horse_ajax + "sellerSetOrderWait",
+			// 		data: {
+			// 			safeCode: cookieget("usersafety"),
+			// 			orderHead: orderHead
+			// 		},
+			// 		dataType: "jsonp",
+			// 		crossDomain: true,
+			// 		success: function (response) {
+			// 			if ("success" == response[0].status) {
+			// 				$.toast(response[0].mesg, "forbidden");
+			// 				orderInfo();
+			// 			}
+			// 			$.hideLoading();
+			// 		},
+			// 		error: function () {
+			// 			$.hideLoading();
+			// 		}
+			// 	})
+			// }, function () {
+			// 	//取消操作
+			// });
 		}
 
 		//拒收订单
