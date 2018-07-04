@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>国贸商户</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Write an awesome description for your new  in your document head meta">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<link rel="stylesheet" href="../css/demos.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				read('dfh');
+			}
+		});
+
+		function HxAppready() {
+			read('dfh');
+		}
+
+		function read(readAction) {
+			orderInfo(readAction);
+		}
+
+
+
+
+
+		function orderInfo(order_status) {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerGetOrderPrint",
+				data: {
+					safeCode: cookieget("usersafety"),
+					status: order_status
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+								console.log(list);
+						for (var i = 0; i < list.length; i++) {
+
+						}
+					//	$("#content1").html(htmlAll);
+					}
+					$.hideLoading();
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+	</script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+
+</head>
+
+<body ontouchstart>
+
+
+	<div class="head" onclick="myBack('home.html')">
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+		订单打印
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+	</div>
+	<div class="weui-tab">
+		<div class="weui-navbar">
+			<a onclick="read('dfh')" class="weui-navbar__item weui-bar__item--on" href="#tab1">
+				待发货
+			</a>
+			<a onclick="read('dqh')" class="weui-navbar__item" href="#tab2">
+				待取货
+			</a>
+			<a onclick="read('ywc')" class="weui-navbar__item" href="#tab2">
+				已完成
+			</a>
+		</div>
+		<div class="weui-tab__bd">
+			<div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
+				<div>
+					<div class="weui-cells">
+						<div class="weui-cell">
+							<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+								<img src="img/printSet.png" style="width: 50px;display: block">
+							</div>
+							<div class="weui-cell__bd">
+								<a href="#">
+									<p style="color: #F76260;">H18003186321</p>
+									<p style="font-size: 13px; color: black;">189-5276-0619</p>
+								</a>
+							</div>
+						</div>
+						<div class="weui-cell weui-cell_access">
+							<div class="weui-cell__bd">
+								<span style="vertical-align: middle">张三丰</span>
+							</div>
+							<div class="weui-cell__ft">待发货</div>
+						</div>
+						<div class="weui-cell weui-cell_access">
+							<div class="weui-cell__bd">
+								<span style="vertical-align: middle">广陵区沙湾路声谷产业园2期11号楼E座3F</span>
+							</div>
+						</div>
+
+						<div class="weui-cell" id="pack1">
+							<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+								<img src="http://img.554488.com/big/201512/20ba0ff9-61b4-475b-bccc-21d0a20305a7.jpg" style="width: 50px;display: block">
+							</div>
+							<div class="weui-cell__bd">
+								<p>欧莱雅洗发液</p>
+								<p style="font-size: 13px;color: #888888;">规格：中瓶装</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="tab2" class="weui-tab__bd-item">
+			</div>
+			<div id="tab3" class="weui-tab__bd-item">
+			</div>
+		</div>
+	</div>
+
+	<script src="../lib/jquery-2.1.4.js"></script>
+	<script src="../lib/fastclick.js"></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+	<script src="../js/jquery-weui.js"></script>
+</body>
+
+</html>

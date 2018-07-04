@@ -54,14 +54,14 @@
 					if ("success" == response[0].status) {
 						var list = response[0].data;
 						var info = list.Table;
-						//							console.log(info);
+								//			console.log(info);
 						$("#name").html(info[0].name);
 						$("#phone").html(info[0].phone);
 						//统计信息
 
 
 						var collect = list.Table1;
-					//	console.log(collect);
+						console.log(collect);
 						if (collect.length > 0) {
 							$("#countsSign").html(collect[0].sign);
 							$("#countsSelfTake").html(collect[0].selfTake);

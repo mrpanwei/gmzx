@@ -75,7 +75,7 @@
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-					//	console.log(list)
+						console.log(list)
 						var oldHead = "";
 						var packsHead = "";
 						var packages = "";
@@ -86,17 +86,20 @@
 							if (oldHead != list[i].Order_head) {
 								//这里是一个新的订单 ,纪录头信息,如有信息了就合成
 								if (packsHead.length > 0) {
-									packsShow = "<div id=\"" + oldHead + "\" onclick=\"tackeAway('" + oldHead + "','" + list[i - 1].checkCode +
-										"')\">" + packsHead + itemBodyCover(packages) + "</div>";
+									packsShow = "<div id=\"" + oldHead + "\">" + packsHead + itemBodyCover(packages) + foot(list[i - 1].Mobile,
+										list[i - 1].location, list[i - 1]
+										.locationAddress) + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 									forCount++;
 								}
-								packsHead = itemHead(list[i].Order_head, list[i].Orderid, list[i].Mobile, list[i].Remark, list[i].Realname);
+								packsHead = itemHead(list[i].Order_head, list[i].checkCode, list[i].Orderid, list[i].Mobile, list[i].Remark,
+									list[i].Realname);
 								packages += itemBody(list[i].sp_name, list[i].Num);
 								if (i == list.length - 1) {
-									packsShow = "<div id=\"" + list[i].Order_head + "\" onclick=\"tackeAway('" + list[i].Order_head + "','" +
-										list[i].checkCode + "')\">" + packsHead + itemBodyCover(packages) + "</div>";
+									packsShow = "<div id=\"" + list[i].Order_head + "\">" + packsHead + itemBodyCover(packages) + foot(list[i].Mobile,
+										list[i].location,
+										list[i].locationAddress) + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -107,8 +110,9 @@
 								//如果是同一个订单的话，则处理包裹
 								packages += itemBody(list[i].sp_name, list[i].Num);
 								if (i == list.length - 1) {
-									packsShow = "<div id=\"" + oldHead + "\" onclick=\"tackeAway('" + oldHead + "','" + list[i].checkCode +
-										"')\">" + packsHead + itemBodyCover(packages) + "</div>";
+									packsShow = "<div id=\"" + oldHead + "\">" + packsHead + itemBodyCover(packages) + foot(list[i].Mobile,
+											list[i].location, list[i].locationAddress) +
+										"</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -132,6 +136,46 @@
 			})
 		}
 
+		function foot(phone, location, locationAddress) {
+			var html = "";
+			html += "<div onclick=\"call('" + phone + "')\" class=\"weui-cells__title\" style=\"font-size:16px;\">联系手机：" + phone +
+				"</div>";
+			html += "<div onclick=\"tryNavigation('" + location + "','" + locationAddress +
+				"')\" class=\"weui-cells__title\" style=\"font-size:16px;\">送货地址：" + locationAddress + "</div>";
+			return html;
+		}
+
+
+		function call(phone) {
+			if (!isNaN(phone)) {
+				if (isHxApp()) {
+					app_Tel(phone);
+				} else {
+					$.alert("tel:" + phone);
+				}
+			}
+		}
+
+		function tryNavigation(gps, address) {
+			console.log(gps + ":" + address);
+			$.confirm("确定导航，否则取消", address, function () {
+				navigation(gps, address);
+			});
+		}
+
+		//导航
+		function navigation(gps, address) {
+			var lat = gps.split(',')[0];
+			var lng = gps.split(',')[1];
+			if (!isBlank(lat) && !isBlank(lng) && !isBlank(address)) {
+				if (isHxApp()) {
+					app_OpenMap(lng, lat, address);
+				} else {
+					$.alert(address, gps);
+				}
+			}
+		}
+
 		//点击更多
 		function addMore() {
 			$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
@@ -139,12 +183,13 @@
 		}
 
 		//订单头信息
-		function itemHead(orderHead, orderID, phone, remark, Realname) {
+		function itemHead(orderHead, checkCode, orderID, phone, remark, Realname) {
 			var html = "";
-			html += "<div class=\"weui-cell\" style=\"padding: 10px 10px; background-color: #19A160;\">";
+			html += "<div onclick=\"tackeAway('" + orderHead + "','" + checkCode +
+				"')\" class=\"weui-cell\" style=\"padding: 10px 10px; background-color: #19A160;\">";
 			html +=
 				"<div class=\"weui-cell__hd\" style=\"position: relative; margin-right: 10px;\"><img src=\"img/sclient.png\" style=\"width: 50px; display: block\"></div>";
-			html += "<div class=\"weui-cell__bd\" style=\"color: white;\"><p>" + Realname + "，" + phone +
+			html += "<div class=\"weui-cell__bd\" style=\"color: white;\"><p>" + Realname + 
 				"</p><p style=\"font-size: 13px;\">" + orderID + "</p></div></div>";
 			if (remark != "" && remark != 'undefined' && remark != null) {
 				html += "<div class=\"weui-cells__title\" style=\"font-size: 18px; color: #19A160;\">" + remark + "</div>";
@@ -202,6 +247,7 @@
 							var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
 							//需求变动，如送货上门则不需要输入提货码
 							clientCode = checkCode;
+							console.log(clientCode);
 							$.prompt({
 								text: "",
 								title: "请输入提货码",

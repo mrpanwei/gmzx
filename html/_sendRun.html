@@ -218,13 +218,14 @@
                             var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
                             //需求变更，如果需要验证码，则注释下列一行
                             clientCode = checkCode;
+                            console.log(clientCode);
                             $.prompt({
                                 text: "",
                                 title: "请输入提货码",
                                 onOK: function (text) {
                                     //保证输入的取货验证码和系统提供的是一直
                                     if (text == checkCode) {
-                                        console.log("提交结算：" + orderHead + ":" + text);
+                                     
                                         chooseFinish(obj);
                                     }else {
 										$.alert("请输入正确的提货码", "国贸在线");

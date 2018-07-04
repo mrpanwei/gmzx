@@ -86,9 +86,9 @@
 							if (oldHead != list[i].Order_head) {
 								//这里是一个新的订单 ,纪录头信息,如有信息了就合成
 								if (packsHead.length > 0) {
-									packsShow = "<div id=\"" + oldHead + "\" onclick=\"tackeAway('" + oldHead + "','" + list[i-1].checkCode +
+									packsShow = "<div id=\"" + oldHead + "\" onclick=\"tackeAway('" + oldHead + "','" + list[i - 1].checkCode +
 										"')\">" + packsHead +
-										itemBodyCover(packages) + "</div>";
+										itemBodyCover(packages) + bank() + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 									forCount++;
@@ -98,7 +98,7 @@
 								if (i == list.length - 1) {
 									packsShow = "<div id=\"" + list[i].Order_head + "\" onclick=\"tackeAway('" + list[i].Order_head + "','" +
 										list[i].checkCode + "')\">" +
-										packsHead + itemBodyCover(packages) + "</div>";
+										packsHead + itemBodyCover(packages) + bank() + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -111,7 +111,7 @@
 								if (i == list.length - 1) {
 									packsShow = "<div id=\"" + oldHead + "\" onclick=\"tackeAway('" + oldHead + "','" + list[i].checkCode +
 										"')\">" + packsHead +
-										itemBodyCover(packages) + "</div>";
+										itemBodyCover(packages) + bank() + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -135,6 +135,10 @@
 			})
 		}
 
+		function bank() {
+			return "<div class=\"weui-cells__title\"></div>";
+		}
+
 		//点击更多
 		function addMore() {
 			$("#pageIndex").val(parseInt($("#pageIndex").val()) + 1);
@@ -147,7 +151,7 @@
 			html += "<div class=\"weui-cell\" style=\"padding: 10px 10px; background-color: #19A160;\">";
 			html +=
 				"<div class=\"weui-cell__hd\" style=\"position: relative; margin-right: 10px;\"><img src=\"img/sclient.png\" style=\"width: 50px; display: block\"></div>";
-			html += "<div class=\"weui-cell__bd\" style=\"color: white;\"><p>" + Realname + "，" + phone +
+			html += "<div class=\"weui-cell__bd\" style=\"color: white;\"><p>" + Realname +
 				"</p><p style=\"font-size: 13px;\">" + Orderid + "</p></div></div>";
 			if (remark != "" && remark != 'undefined' && remark != null) {
 				html += "<div class=\"weui-cells__title\" style=\"font-size: 18px; color: #19A160;\">" + remark + "</div>";
