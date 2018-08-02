@@ -52,7 +52,7 @@
                         var list = response[0].data;
                         list.forEach(function (value, index, array) {
                             console.log(array[index]);
-                            htmlAll += itemMake(array[index].Orderid,array[index].name, array[index].address, array[index].position, array[index].orderHead, array[index].cAddress, array[index].requireDate, array[index].cLocation)
+                            htmlAll += itemMake(array[index].cPhone, array[index].Orderid, array[index].name, array[index].address, array[index].position, array[index].orderHead, array[index].cAddress, array[index].requireDate, array[index].cLocation)
                         });
                         $("#contentList").html(htmlAll);
                     }
@@ -73,10 +73,10 @@
             readyInfo();
         }
 
-        function itemMake(orderID,name, address, position, orderHead, cAddress, requireDate, cLocation) {
+        function itemMake(cPhone, orderID, name, address, position, orderHead, cAddress, requireDate, cLocation) {
             var html = "";
             html += "<div id=\"" + orderHead + "\" >";
-            html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"getTask('" + orderHead + "','"+orderID+"')\">";
+            html += "<div class=\"weui-cell\" style=\"padding:10px 10px;background-color:#19A160;\" onclick=\"getTask('" + orderHead + "','" + orderID + "')\">";
             html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
             html += "<img src=\"img/scup.png\" style=\"width: 50px;display: block\">";
             html += "</div>";
@@ -87,10 +87,26 @@
             html += "</div>";
             html += "<div class=\"weui-cells__title\" style=\"font-size: 18px; color: black;\">" + orderHead + "</div>";
             html += "<div class=\"weui-cells__title\" style=\"font-size: 18px; \">要求送达：" + requireDate + "</div>";
+            html += "<div onclick=\"call('" + cPhone + "')\" class=\"weui-cells__title\" style=\"font-size: 18px; \">用户手机" + cPhone + "</div>";
             html += "<div onclick=\"tryNavigation('" + cLocation + "','" + cAddress + "')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + cAddress + "</div>";
             html += "</div>";
             return html;
         }
+
+
+
+        function call(phone) {
+            if (!isNaN(phone)) {
+                if (isHxApp()) {
+                    app_Tel(phone);
+                } else {
+                    $.alert("tel:" + phone);
+                }
+            }
+        }
+
+
+
 
         function tryNavigation(gps, address) {
             $.confirm("确定导航，否则取消", address, function () {
@@ -111,7 +127,7 @@
             }
         }
 
-        function getTask(obj,orderID) {
+        function getTask(obj, orderID) {
             $.confirm(obj, "确定后受理此单", function () {
                 jQuery.ajax({
                     type: "get",
@@ -126,7 +142,7 @@
                         if ("success" == response[0].status) {
                             $("#" + obj).remove();
                             $.toast(response[0].mesg, "success");
-                            callSMS(cookieget("usersafety"),orderID);
+                            callSMS(cookieget("usersafety"), orderID);
                         } else {
                             $.toast(response[0].mesg, "forbidden");
                         }
@@ -153,6 +169,7 @@
             color: #13227A;
             position: relative;
             font-size: 1.3rem;
+
         }
 
         .return {
@@ -174,7 +191,7 @@
 <body ontouchstart>
     <input type="hidden" id="pageIndex" value="1" />
 
-	<div class="head" onclick="myBack('_deliveryOther.html')">
+    <div class="head" onclick="myBack('_deliveryOther.html')">
         <a href="javascript:javascript:" onclick="myBack('_deliveryOther.html')" class="return">〈</a>
         待受理
         <a href="javascript:javascript:" onclick="myBack('_deliveryOther.html')" class="search"></a>

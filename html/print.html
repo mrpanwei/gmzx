@@ -15,42 +15,81 @@
 	<script>
 		$(document).ready(function () {
 			if (!isUrlHxApp()) {
-				read('dfh');
+				read('tabl', 'dfh');
+				$(document.body).pullToRefresh(function () {
+					orderInfoAdd($("#tabIndex").val(), $("#tabState").val());
+				});
 			}
 		});
 
 		function HxAppready() {
-			read('dfh');
+			read('tabl', 'dfh');
+			$(document.body).pullToRefresh(function () {
+				orderInfoAdd($("#tabIndex").val(), $("#tabState").val());
+			});
 		}
 
-		function read(readAction) {
-			orderInfo(readAction);
+		function read(id, readAction) {
+			$("#pageIndex").val(1);
+			$("#tabIndex").val(id);
+			$("#tabState").val(readAction);
+			orderInfo(id, readAction);
 		}
 
-
-
-
-
-		function orderInfo(order_status) {
-			IDValid();
-			$.showLoading();
+		//下来加载
+		function orderInfoAdd(id, state) {
+			var index = parseInt($("#pageIndex").val()) + 1;
+			$("#pageIndex").val(index);
+			// $.showLoading();
 			jQuery.ajax({
 				type: "get",
-				url: horse_ajax + "sellerGetOrderPrint",
+				url: horse_ajax + "sellerOrdersHistory",
 				data: {
 					safeCode: cookieget("usersafety"),
-					status: order_status
+					state: state,
+					pageIndex: $("#pageIndex").val(),
+					pageSize: $("#pageSize").val()
 				},
 				dataType: "jsonp",
 				crossDomain: true,
 				success: function (response) {
 					if ("success" == response[0].status) {
 						var list = response[0].data;
-								console.log(list);
-						for (var i = 0; i < list.length; i++) {
-
+						if (!isBlank(list)) {
+							$("#" + id).append(makeContents(list));
 						}
-					//	$("#content1").html(htmlAll);
+					}
+					$(document.body).pullToRefreshDone();
+					// $.hideLoading();
+				},
+				error: function () {
+					// $.hideLoading();
+					$(document.body).pullToRefreshDone();
+				}
+			})
+		}
+
+		//首次加载
+		function orderInfo(id, order_status) {
+			IDValid();
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "sellerOrdersHistory",
+				data: {
+					safeCode: cookieget("usersafety"),
+					state: order_status,
+					pageIndex: $("#pageIndex").val(),
+					pageSize: $("#pageSize").val()
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						if (!isBlank(list)) {
+							$("#" + id).html(makeContents(list));
+						}
 					}
 					$.hideLoading();
 				},
@@ -59,6 +98,153 @@
 				}
 			})
 		}
+
+		//组装HTMLS
+		function makeContents(list) {
+			//上一次订单头
+			var oldHead = "";
+			//组装-头
+			var head = "";
+			//组装-身体(集合)
+			var bodys = "";
+			//组装的头+身体
+			var sigOrder = "";
+			var fullOrder = "";
+			for (var i = 0; i < list.length; i++) {
+				//新订单头
+				if (oldHead != list[i].Order_head) {
+					if (head.length > 0) {
+						//头已经存在了，那么开始处理上一包完整的数据
+						sigOrder = makeHeadPre() + head + bodys + makeEndAfter();
+						fullOrder += sigOrder;
+						//清除
+						head = "";
+						bodys = "";
+						sigOrder = "";
+					}
+					head = makeHead(list[i].Order_head, list[i].Orderid, list[i].Create_time, list[i].Realname, list[i].Mobile, list[i].customerAddress);
+					bodys += makeBody(list[i].sp_name, list[i].sp_img_url, list[i].num, list[i].sp_dawei);
+					/////////////////////////////////////////////////////////////////
+					if (i == list.length - 1) {
+						sigOrder = makeHeadPre() + head + bodys + makeEndAfter();
+						fullOrder += sigOrder;
+						//清除
+						head = "";
+						bodys = "";
+						sigOrder = "";
+					}
+					oldHead = list[i].Order_head;
+				} else {
+					//持续组装订单身体
+					bodys += makeBody(list[i].sp_name, list[i].sp_img_url, list[i].num, list[i].sp_dawei);
+					/////////////////////////////////////////////////////////////////
+					//检查是否为最后一个名目，如果是则开始合成
+					if (i == list.length - 1) {
+						sigOrder = makeHeadPre() + head + bodys + makeEndAfter();
+						fullOrder += sigOrder;
+						//清除
+						head = "";
+						bodys = "";
+						sigOrder = "";
+					}
+				}
+			}
+			return fullOrder;
+		}
+
+		function makeHeadPre() {
+			return "<div><div class=\"weui-cells\">";
+		}
+
+		function makeEndAfter() {
+			//预留空格位置
+			return "<div class=\"weui-cells\"></div></div></div>";
+		}
+
+		function makeHead(orderHead, orderID, createDate, realName, phone, address) {
+			var html = "";
+			html += "<div class=\"weui-cell\">";
+			html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
+			html += "<img onclick=\"print('" + orderHead + "')\" src=\"img/printSet.png\" style=\"width: 50px;display: block\">";
+			html += "</div>";
+			html += "<div class=\"weui-cell__bd\">";
+			html += "<a href=\"#\">";
+			html += "<p  style=\"color:#000;\"  >" + orderHead + "</p>";
+			html += "<p style=\"font-size: 13px; color: black;\">" + createDate + "</p>";
+			html += "</a>";
+			html += "</div>";
+			html += "</div>";
+			html += "<div class=\"weui-cell weui-cell_access\">";
+			html += "<div class=\"weui-cell__bd\">";
+			html += "<span style=\"vertical-align: middle\">订单:" + orderID + "</span>";
+			html += "</div>";
+			html += "<div style=\"color: #F76260;\" onclick=\"call('" + phone + "')\"  class=\"weui-cell__ft\">" + phone + "</div>";
+			html += "</div>";
+			html += "<div class=\"weui-cell weui-cell_access\">";
+			html += "<div class=\"weui-cell__bd\">";
+			html += "<span style=\"vertical-align: middle\">地址:" + address + "</span>";
+			html += "</div>";
+			html += "</div>"
+			return html;
+		}
+
+		function makeBody(goodsName, goodsImg, goodsCount, goodsUnit) {
+			var html = "";
+			html += "<div class=\"weui-cell\" id=\"pack1\">";
+			html += "<div class=\"weui-cell__hd\" style=\"position: relative;margin-right: 10px;\">";
+			html += "<img src=\"http://img.dtgmzx.cn/big/" + goodsImg + "\" style=\"width: 50px;display: block\">";
+			html += "</div>";
+			html += "<div class=\"weui-cell__bd\">";
+			html += "<p>" + goodsName + "</p>";
+			html += "<p style=\"font-size: 13px;color: #888888;\">数量：" + goodsCount + " " + goodsUnit + "</p>";
+			html += "</div>";
+			html += "</div>";
+			return html;
+		}
+
+		//电话
+		function call(phone) {
+			$.confirm("您确定联系该用户吗？", phone, function () {
+				if (!isNaN(phone)) {
+					if (isHxApp()) {
+						app_Tel(phone);
+					} else {
+						$.alert("tel:" + phone);
+					}
+				}
+			}, function () {
+				//取消操作
+			});
+		}
+
+		//打印
+		function print(orderHead) {
+			$.confirm("确定重新打印此订单么?", orderHead, function () {
+				jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "appPrint",
+					data: {
+						safeCode: cookieget("usersafety"),
+						orderID: orderHead,
+						type: "1"
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+						if ("success" == response[0].status) {
+							var list = response[0].data;
+							var printList = list.printList;
+							var arr = printList.split(',');
+							blueToothPrint(arr);
+						}
+					},
+					error: function () { }
+				})
+			}, function () {
+				//取消操作
+			});
+		}
+
 
 		//验证用户身份
 		function IDValid() {
@@ -101,27 +287,39 @@
 
 <body ontouchstart>
 
+	<div class="weui-pull-to-refresh__layer">
+		<div class='weui-pull-to-refresh__arrow'></div>
+		<div class='weui-pull-to-refresh__preloader'></div>
+		<div class="down">下拉刷新</div>
+		<div class="up">释放刷新</div>
+		<div class="refresh">正在刷新</div>
+	</div>
 
 	<div class="head" onclick="myBack('home.html')">
 		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
 		订单打印
 		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
 	</div>
+
+	<input type="hidden" id="pageIndex" value="1">
+	<input type="hidden" id="tabIndex" value="tab1">
+	<input type="hidden" id="tabState" value="dfh">
+	<input type="hidden" id="pageSize" value="1">
 	<div class="weui-tab">
 		<div class="weui-navbar">
-			<a onclick="read('dfh')" class="weui-navbar__item weui-bar__item--on" href="#tab1">
+			<a onclick="read('tab1','dfh')" class="weui-navbar__item weui-bar__item--on" href="#tab1">
 				待发货
 			</a>
-			<a onclick="read('dqh')" class="weui-navbar__item" href="#tab2">
+			<a onclick="read('tab2','dqh')" class="weui-navbar__item" href="#tab2">
 				待取货
 			</a>
-			<a onclick="read('ywc')" class="weui-navbar__item" href="#tab2">
+			<a onclick="read('tab3','ywc')" class="weui-navbar__item" href="#tab3">
 				已完成
 			</a>
 		</div>
 		<div class="weui-tab__bd">
 			<div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
-				<div>
+				<!-- <div>
 					<div class="weui-cells">
 						<div class="weui-cell">
 							<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
@@ -130,7 +328,7 @@
 							<div class="weui-cell__bd">
 								<a href="#">
 									<p style="color: #F76260;">H18003186321</p>
-									<p style="font-size: 13px; color: black;">189-5276-0619</p>
+									<p style="font-size: 13px; color: black;">2018-06-20 18:00</p>
 								</a>
 							</div>
 						</div>
@@ -138,7 +336,7 @@
 							<div class="weui-cell__bd">
 								<span style="vertical-align: middle">张三丰</span>
 							</div>
-							<div class="weui-cell__ft">待发货</div>
+							<div class="weui-cell__ft">18952760619</div>
 						</div>
 						<div class="weui-cell weui-cell_access">
 							<div class="weui-cell__bd">
@@ -155,13 +353,15 @@
 								<p style="font-size: 13px;color: #888888;">规格：中瓶装</p>
 							</div>
 						</div>
+						<div class="weui-cells"></div>
 					</div>
-				</div>
+				</div> -->
 			</div>
 			<div id="tab2" class="weui-tab__bd-item">
 			</div>
 			<div id="tab3" class="weui-tab__bd-item">
 			</div>
+
 		</div>
 	</div>
 

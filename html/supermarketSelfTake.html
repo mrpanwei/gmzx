@@ -86,17 +86,15 @@
 							if (oldHead != list[i].Order_head) {
 								//这里是一个新的订单 ,纪录头信息,如有信息了就合成
 								if (packsHead.length > 0) {
-									packsShow = "<div id=\"" + oldHead + "\" onclick=\"tackeAway('" + oldHead + "','" + list[i - 1].checkCode +
-										"')\">" + packsHead + itemBodyCover(packages) + "</div>";
+									packsShow = "<div id=\"" + oldHead + "\">" + packsHead + itemBodyCover(packages) + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 									forCount++;
 								}
 								packsHead = itemHead(list[i].Order_head, list[i].Orderid, list[i].Mobile, list[i].Remark, list[i].Create_time);
-								packages += itemBody(list[i].Order_head, list[i].packageCode);
+								packages += itemBody(list[i].Order_head, list[i].packageCode, list[i].checkCode);
 								if (i == list.length - 1) {
-									packsShow = "<div id=\"" + list[i].Order_head + "\" onclick=\"tackeAway('" + list[i].Order_head + "','" +
-										list[i].checkCode + "')\">" + packsHead + itemBodyCover(packages) + "</div>";
+									packsShow = "<div id=\"" + list[i].Order_head + "\" >" + packsHead + itemBodyCover(packages) + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -105,10 +103,9 @@
 								oldHead = list[i].Order_head;
 							} else {
 								//如果是同一个订单的话，则处理包裹
-								packages += itemBody(list[i].Order_head, list[i].packageCode);
+								packages += itemBody(list[i].Order_head, list[i].packageCode, list[i].checkCode);
 								if (i == list.length - 1) {
-									packsShow = "<div id=\"" + oldHead + "\" onclick=\"tackeAway('" + oldHead + "','" + list[i].checkCode +
-										"')\">" + packsHead + itemBodyCover(packages) + "</div>";
+									packsShow = "<div id=\"" + oldHead + "\" >" + packsHead + itemBodyCover(packages) + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packsShow = "";
 									packsHead = "";
@@ -144,7 +141,7 @@
 			html +=
 				"<a style=\"background-color: #DADADA;\" href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">";
 			html +=
-				"<div class=\"weui-media-box__hd\"><img class=\"weui-media-box__thumb\" src=\"img/cdelay.png\" alt=\"\"></div>";
+				"<div class=\"weui-media-box__hd\"><img onclick=\"call('" + phone + "')\" class=\"weui-media-box__thumb\" src=\"img/phoneCall.png\" alt=\"\"></div>";
 			html += "<div class=\"weui-media-box__bd\"><h4 class=\"weui-media-box__title\">" + Orderid +
 				"<span class=\"weui-media-box__title-after\">" + createTime + "</span></h4>";
 			html += "<p class=\"weui-media-box__desc\">" + phone + "</p></div></a>";
@@ -152,12 +149,28 @@
 		}
 
 		//订单包裹
-		function itemBody(orderHead, packCode) {
+		function itemBody(orderHead, packCode, checkCode) {
 			var html = "";
-			html +=
-				"<a style=\"\" href=\"#.html\" class=\"weui-grid js_grid\"><div class=\"weui-grid__icon\"><img src=\"img/package.png\" alt=\"\"></div>";
-			html += "<p class=\"weui-grid__label\">" + packCode + "</p></a>";
+			if (packCode != "") {
+				html +=
+					"<a  onclick=\"tackeAway('" + orderHead + "','" + checkCode + "')\"  class=\"weui-grid js_grid\"><div class=\"weui-grid__icon\"><img src=\"img/package.png\" alt=\"\"></div>";
+				html += "<p class=\"weui-grid__label\">" + packCode + "</p></a>";
+			}
 			return html;
+		}
+
+		function call(phone) {
+			$.confirm("您确定联系该用户吗？", phone, function () {
+				if (!isNaN(phone)) {
+					if (isHxApp()) {
+						app_Tel(phone);
+					} else {
+						$.alert("tel:" + phone);
+					}
+				}
+			}, function () {
+				//取消操作
+			});
 		}
 
 		//封装包裹
@@ -172,51 +185,50 @@
 			selfInfo();
 		}
 
-		function tackeAway(orderHead,checkCode) {
-			console.log(checkCode);
+		function tackeAway(orderHead, checkCode) {
 			$("#selectOrder").val(orderHead);
 			$.modal({
 				title: orderHead,
 				text: "请与用户核实商品类，并结算",
 				buttons: [{
-						text: "拒收",
-						className: "default",
-						onClick: function () {
-							//                        console.log("提交拒收：" + orderHead)
-							$.actions({
-								title: "【请选择客户拒收的原因】",
-								onClose: function () {},
-								actions: gridArrayData
-							});
-							//                        $("#" + orderHead).remove();
-						}
-					},
-					{
-						text: "取消",
-						onClick: function () {}
-					},
-					{
-						text: "结单",
-						onClick: function () {
-							
-							var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
-							$.prompt({
-								text: "",
-								title: "请输入提货码",
-								onOK: function (text) {
-									//保证输入的取货验证码和系统提供的是一直
-									if (text == checkCode) {
-										console.log("提交结算：" + orderHead + ":" + text);
-										chooseFinish(orderHead);
-									}
-								},
-								onCancel: function () {
-									console.log("取消了");
-								},
-								input: clientCode
-							});
-						}
-					},
+					text: "拒收",
+					className: "default",
+					onClick: function () {
+						//                        console.log("提交拒收：" + orderHead)
+						$.actions({
+							title: "【请选择客户拒收的原因】",
+							onClose: function () { },
+							actions: gridArrayData
+						});
+						//                        $("#" + orderHead).remove();
+					}
+				},
+				{
+					text: "取消",
+					onClick: function () { }
+				},
+				{
+					text: "结单",
+					onClick: function () {
+
+						var clientCode = checkCode.substring(0, checkCode.length - 2) + '**';
+						$.prompt({
+							text: "",
+							title: "请输入提货码",
+							onOK: function (text) {
+								//保证输入的取货验证码和系统提供的是一直
+								if (text == checkCode) {
+									console.log("提交结算：" + orderHead + ":" + text);
+									chooseFinish(orderHead);
+								}
+							},
+							onCancel: function () {
+								console.log("取消了");
+							},
+							input: clientCode
+						});
+					}
+				},
 				]
 			});
 		}
@@ -271,7 +283,7 @@
 						});
 					}
 				},
-				error: function () {}
+				error: function () { }
 			})
 		}
 

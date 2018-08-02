@@ -85,7 +85,7 @@
 			}
 		}
 
-		//需要初始化的订单信息
+		//需要初始化的订单信息MN002334A03
 		function readyInfo() {
 			$.showLoading();
 			jQuery.ajax({
@@ -114,7 +114,7 @@
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 								}
-								packsHead = itemHead(list[i].Order_head, list[i].Realname, list[i].Mobile, list[i].Address,list[i].shopName, list[i].shopPhone, list[i].shopLocation);
+								packsHead = itemHead(list[i].Order_head, list[i].Realname, list[i].cPhone, list[i].Address,list[i].shopName, list[i].shopPhone, list[i].shopLocation);
 								packages += itemBody(list[i].Order_head, list[i].Orderid, list[i].code);
 								if (i == list.length - 1) {
 									packsShow = packsHead + itemBodyCover(packages);
@@ -166,7 +166,9 @@
 			html += "</div>";
 			html += "</div>";
 			html += "<div onclick=\"tryNavigation('" + shopLocation + "','" + shopName + "')\" class=\"weui-cells__title\"><img src=\"img/location.png\">" + shopName + "</div>";
-			html += "<div onclick=\"call('" + shopPhone + "')\" class=\"weui-cells__title\">联系电话：" + shopPhone + "</div>";
+			html += "<div onclick=\"call('" + shopPhone + "')\" class=\"weui-cells__title\">商户手机：" + shopPhone + "</div>";
+
+			html += "<div onclick=\"call('" + phone + "')\" class=\"weui-cells__title\">用户手机：" + phone + "</div>";
 			return html;
 		}
 
@@ -297,7 +299,7 @@
 	<a style="display: none;" id="speech" href="javascript:startRecognize()" class="weui-btn  weui-btn_primary">语音识别</a>
 	<div class="weui-cells" id="contentList">
 
-		<!--<div class="weui-cell weui-cell_access" onclick="dealOrder('180313076507')">
+		<!-- <div class="weui-cell weui-cell_access" onclick="dealOrder('180313076507')">
 				<div class="weui-cell__bd" style="font-weight: bolder;">180313076507</div>
 				<div class="weui-cell__ft" style="font-size: 0" onclick="dealOrder('180313076507')">
 					<span style="vertical-align:middle; font-size: 17px;">西门吹雪</span>
@@ -343,7 +345,7 @@
 					</p>
 				</a>
 
-			</div>-->
+			</div> -->
 
 	</div>
 	<div id="more" class="weui-form-preview__ft">
