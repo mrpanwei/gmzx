@@ -79,11 +79,13 @@
 					if (response[0].status == "success") {
 						var list = response[0].data;
 						var html = "";
+						$("#boxCode").html(fromBox + "[" + list.length + "]");
 						for (var i = 0; i < list.length; i++) {
 							html += "<a class=\"weui-media-box weui-media-box_appmsg\">" +
 								"<div class=\"weui-media-box__hd\"><img class=\"weui-media-box__thumb\" src=\"img/box-sign.png\" alt=\"\"></div>" +
 								"<div class=\"weui-media-box__bd\"><h4 class=\"weui-media-box__title\">" + list[i].packageCode +
-								" <span class=\"weui-media-box__title-after\"></span></h4><p class=\"weui-media-box__desc\">入箱时间：" + list[i].fillDate +
+								" <span class=\"weui-media-box__title-after\"></span></h4><p class=\"weui-media-box__desc\">入箱时间：" + list[i]
+								.fillDate +
 								"</p></div></a>";
 						}
 						$("#contentList").html(html);
@@ -94,7 +96,7 @@
 					$.hideLoading();
 				}
 			})
-			
+
 		}
 	</script>
 </head>

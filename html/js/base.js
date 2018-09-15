@@ -1,7 +1,7 @@
 //var horse_ajax = 'http://localhost:1818/horseman.asmx/'
- var horse_ajax = "http://localhost:1819/lightning.asmx/";
+ //var horse_ajax = "http://localhost:1818/lightning.asmx/";
 
-//var horse_ajax = "http://appser.dtgmzx.cn/lightning.asmx/";
+var horse_ajax = "http://appser.dtgmzx.cn/lightning.asmx/";
 //
 //APP全局变量
 var app_para = "";
