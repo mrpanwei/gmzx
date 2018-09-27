@@ -148,12 +148,19 @@
 
 		function call(phone) {
 			if (!isNaN(phone)) {
-				if (isHxApp()) {
+				$.confirm("您确定要拨打用户电话么？", phone, function () {
+				
+					if (isHxApp()) {
 					app_Tel(phone);
 				} else {
 					$.alert("tel:" + phone);
 				}
-			}
+			}, function () {
+				//取消操作
+			});
+
+
+						}
 		}
 
 		function tryNavigation(gps, address) {
@@ -188,9 +195,9 @@
 			html += "<div onclick=\"tackeAway('" + orderHead + "','" + checkCode +
 				"')\" class=\"weui-cell\" style=\"padding: 10px 10px; background-color: #19A160;\">";
 			html +=
-				"<div class=\"weui-cell__hd\" style=\"position: relative; margin-right: 10px;\"><img src=\"img/sclient.png\" style=\"width: 50px; display: block\"></div>";
-			html += "<div class=\"weui-cell__bd\" style=\"color: white;\"><p>" + Realname + 
-				"</p><p style=\"font-size: 13px;\">" + orderID + "</p></div></div>";
+				"<div class=\"weui-cell__hd\" style=\"position: relative; margin-right: 10px;\"><img src=\"img/markOrder.png\" style=\"width: 50px; display: block\"></div>";
+			html += "<div class=\"weui-cell__bd\" style=\"color: white;\"><p>" + orderHead + 
+				"</p><p style=\"font-size: 13px;\">单号" + orderID + "</p></div></div>";
 			if (remark != "" && remark != 'undefined' && remark != null) {
 				html += "<div class=\"weui-cells__title\" style=\"font-size: 18px; color: #19A160;\">" + remark + "</div>";
 			}
@@ -370,7 +377,7 @@
 				请输入：</label>
 		</div>
 		<div class="weui-cell__bd">
-			<input id="txtSearch" class="weui-input" type="text" placeholder="订单号/手机号">
+			<input id="txtSearch" class="weui-input" type="text" placeholder="订单头/手机号">
 		</div>
 		<div class="weui-cell__ft">
 			<button onclick="doSearch();" class="weui-vcode-btn">

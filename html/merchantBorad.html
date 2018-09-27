@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>订单统计</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="Wron.">
+    <link rel="stylesheet" href="../lib/weui.min.css">
+    <link rel="stylesheet" href="../css/jquery-weui.css">
+    <script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/base.js"></script>
+    <style>
+        .head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+    <script>
+        $(document).ready(function () {
+			if (!isUrlHxApp()) {
+                dateInit()
+			}
+		});
+
+		function HxAppready() {
+            dateInit();
+		}
+
+        //日期初始化
+        function dateInit()
+        {
+            var start = getTodayStart();
+            var end = getTodayStart();
+              $("#date").val(start);
+              $("#date2").val(end);
+              dateInitSearch();
+        }
+
+       String.prototype.myReplace=function(f,e){
+            var reg=new RegExp(f,"g");
+            return this.replace(reg,e); 
+       }
+
+        function dateInitSearch()
+        {
+            var date = $("#date").val().myReplace('/','-');
+            var date2 = $("#date2").val().myReplace('/','-');
+            console.log(date);
+            $.showLoading();
+            jQuery.ajax({
+					type: "get",
+					url: horse_ajax + "sellerOrders",
+					data: {
+						safeCode: cookieget("usersafety"),
+						beginDate: date,
+						endDate:  date2
+					},
+					dataType: "jsonp",
+					crossDomain: true,
+					success: function (response) {
+                        $.hideLoading();
+                        $("#counts").html("0笔订单");
+                     $("#moneys").html("￥0");
+                      $("#dyContnt").html("");
+                        if(response[0].status=="success")
+                        {
+                            console.log("5555");
+                            var array = response[0].mesg.split(",");
+                            $("#counts").html(array[0]+"笔订单");
+                            $("#moneys").html("￥"+array[1]);
+
+                            var list  =response[0].data;
+                            var items = "";
+                            list.forEach(function (value, index, array) {
+                                items+=item_add(array[index].sp_img_url,array[index].sp_short_name,array[index].num,array[index].sp_dawei,array[index].sp_tiaoma)
+                            });
+                            $("#dyContnt").html(items);
+                        }else{
+                            $.alert("没有汇总数据", "");
+                            console.log("123123");
+                        }
+					},
+					error: function () {
+                        $.hideLoading();
+					}
+				})
+        }
+
+        function item_add(img,name,num,unit,code){
+           var item = "";
+           item+=" <a href=\"javascript:void(0);\" class=\"weui-media-box weui-media-box_appmsg\">";
+            item+=" <div class=\"weui-media-box__hd\">";
+                item+="<img class=\"weui-media-box__thumb\" src=\""+img+"\" alt=\"\">";
+                item+=" </div>";
+                item+="<div class=\"weui-media-box__bd\">";
+                    item+=" <h4 class=\"weui-media-box__title\">";
+                        item+=name;
+                        item+=" <span class=\"weui-media-box__title-after\">"+num+unit+"</span>";
+                        item+=" </h4>";
+                        item+=" <p class=\"weui-media-box__desc\">"+code+"</p>";
+                        item+=" </div>";
+                        item+=" </a>";
+                        return item;
+
+                    }
+
+
+
+        function getTodayStart()
+        {
+
+            var day = new Date(); 
+           var Year = 0; 
+           var Month = 0; 
+           var Day = 0;  
+           var CurrentDate = ""; 
+           Year       = day.getFullYear();
+           Month      = day.getMonth()+1; 
+           Day        = day.getDate(); 
+           CurrentDate += Year + "/"; 
+           if (Month >= 10 ) 
+           { 
+            CurrentDate += Month + "/"; 
+           } 
+           else
+           { 
+            CurrentDate += "0" + Month + "/"; 
+           } 
+           if (Day >= 10 ) 
+           { 
+            CurrentDate += Day ; 
+           } 
+           else
+           { 
+            CurrentDate += "0" + Day ; 
+           } 
+           
+           return CurrentDate; 
+        }
+
+        function search() {
+            dateInitSearch();
+          }
+
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+	</script>
+</head>
+
+<body ontouchstart>
+    <div class="head" onclick="myBack('home.html')">
+        <a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+        订单统计
+        <a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+    </div>
+
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label for="date" class="weui-label">起始日期</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" id="date" type="text">
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label for="date" class="weui-label">结束日期</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" id="date2" type="text">
+            </div>
+
+        </div>
+    </div>
+
+    <div class="weui-btn-area">
+        <a class="weui-btn weui-btn_primary" href="javascript:search()" id="showTooltips">查询</a>
+    </div>
+
+
+    <!-- <div class="weui-cells__title">周期内有效订单的汇总情况</div> -->
+    <div class="weui-cells">
+        <div class="weui-cell weui-cell_access">
+            <div class="weui-cell__bd" id="counts"></div>
+            <div class="weui-cell__ft" style="font-size: 0">
+                <span style="vertical-align:middle; font-size: 17px;" id="moneys"></span>
+                <!-- <span class="weui-badge weui-badge_dot" style="margin-left: 5px;margin-right: 5px;"></span> -->
+            </div>
+        </div>
+
+
+        <div class="weui-panel weui-panel_access">
+            <div class="weui-panel__bd" id="dyContnt">
+                <!-- <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img class="weui-media-box__thumb" src="img/goods.png" alt="">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">
+                            移动充电宝(小米)
+                            <span class="weui-media-box__title-after">6个</span>
+                        </h4>
+                        <p class="weui-media-box__desc">657565353434004</p>
+                    </div>
+                </a> -->
+                <!-- <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img class="weui-media-box__thumb" src="img/goods.png" alt="">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">
+                            移动充电宝(小米)
+                            <span class="weui-media-box__title-after">6个</span>
+                        </h4>
+                        <p class="weui-media-box__desc">657565353434004</p>
+                    </div>
+                </a>
+                <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img class="weui-media-box__thumb" src="img/goods.png" alt="">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">
+                            移动充电宝(小米)
+                            <span class="weui-media-box__title-after">6个</span>
+                        </h4>
+                        <p class="weui-media-box__desc">657565353434004</p>
+                    </div>
+                </a> -->
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <script src="../lib/fastclick.js "></script>
+        <script type="text/javascript " src="../js/jquery-weui.min.js "></script>
+        <script>
+            $(function () {
+                FastClick.attach(document.body);
+            });
+
+            $("#date").calendar({
+                onChange: function (p, values, displayValues) {
+                    console.log(values, displayValues);
+                }
+            });
+            $("#date2").calendar({
+                onChange: function (p, values, displayValues) {
+                    console.log(values, displayValues);
+                }
+            });
+        </script>
+</body>
+
+</html>
