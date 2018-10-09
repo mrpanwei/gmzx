@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>新增商品</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="Wron.">
+	<link rel="stylesheet" href="../lib/weui.min.css">
+	<link rel="stylesheet" href="../css/jquery-weui.css">
+	<script type="text/javascript" src="../lib/jquery-2.1.4.js"></script>
+	<script type="text/javascript" src="js/base.js"></script>
+	<style>
+		.head {
+			height: 3.0rem;
+			line-height: 3.0rem;
+			text-align: center;
+			background-color: #fff;
+			color: #52B3E5;
+			position: relative;
+			font-size: 1.3rem;
+		}
+
+		.return {
+			font-size: 1.2rem;
+			color: #52B3E5;
+			position: absolute;
+			left: 1rem;
+			top: 0rem;
+		}
+
+		.search {
+			color: #fff;
+			position: absolute;
+			right: 1rem;
+		}
+	</style>
+	<script>
+		$(document).ready(function () {
+			if (!isUrlHxApp()) {
+				init();
+			}
+		});
+
+		function HxAppready() {
+           init();
+		}
+
+		//拍照上传
+		function updCallBack(url)
+		{
+
+		}
+
+		//本地选取上传
+		function UploadPicOk_main(files)
+		{
+			$("#mainfiles").val(files);
+			var arr = files.split(';');
+			$("#mainCount").val(arr.length);
+		}
+
+		function UploadPicOk_sub(files)
+		{
+			$.alert(files,"DEBUG");
+			$("#subfiles").val(files);
+			var arr = files.split(';');
+			$("#subCount").val(arr.length);
+		}
+
+
+		function init()
+		{
+			supplierInit();
+			getBigCategory();
+			$("#uploaderInput1").on("click",function(){
+            	$.actions({
+					actions: [{
+						text: "拍照上传",
+						onClick: function() {
+						//do something
+						if(isHxApp())
+						{
+							$.alert("暂不支持拍照上传","系统提示");
+						}else{
+								$.alert("网页端无法启动摄像头","系统提示");
+						}
+						}
+					},{
+						text: "本地选取",
+						onClick: function() {
+						//do something
+							pickPics('main','UploadPicOk_main');
+						}
+					}]
+					});
+			 });
+			 
+			 $("#uploaderInput2").on("click",function(){
+            	$.actions({
+					actions: [{
+						text: "拍照上传",
+						onClick: function() {
+						//do something
+						if(isHxApp())
+						{
+							$.alert("暂不支持拍照上传","系统提示");
+						}else{
+							$.alert("网页端无法启动摄像头","系统提示");
+						}
+						}
+					},{
+						text: "本地选取",
+						onClick: function() {
+						//do something
+							pickPics('sub','UploadPicOk_sub');
+						}
+					}]
+					});
+         	});
+
+		}
+		
+		
+		//获取参数
+		function getPara()
+		{
+			var params = {};
+			params["supplierID"] = $("#supplierID").val();
+			params["shID"] = $("#shID").val();
+			params["goodsName"] = $("#goodsName").val();
+			params["goodsShortName"] = $("#goodsShortName").val();
+			params["goodsCode"] = $("#goodsCode").val();
+			params["goodsScanCode"] = $("#goodsScanCode").val();
+			params["goodsUnit"] = $("#goodsUnit").val();
+			params["goodsSalePrice"] = $("#goodsSalePrice").val();
+			params["goodsCategoryID"] = $("#bigCategory  option:selected").val().split(',')[0];
+			params["goodsCategoryNumber"] = $("#bigCategory  option:selected").val().split(',')[1];
+
+			params["ifWeight"] = $("#goodsIfWeight").val();
+			params["site_city"] = 117;
+			params["mainPics"] = $("#mainfiles").val();
+			params["subPics"] = $("#subfiles").val();
+			var paramsJson = JSON.stringify(params);
+			console.log(paramsJson);
+			return paramsJson;
+		}
+
+		//清除参数
+		function clearPara()
+		{
+			$("#goodsName").val("");
+			$("#goodsShortName").val("");
+			$("#goodsCode").val("");
+			$("#goodsScanCode").val("");
+			$("#goodsUnit").val("");
+			$("#goodsSalePrice").val("");
+			$("#mainfiles").val("");
+			$("#subfiles").val("");
+			$("#mainCount").val(0);
+			$("#subCount").val(0);
+			$("#bigCategory option:first").prop("selected", 'selected');
+			$("#goodsIfWeight option:first").prop("selected", 'selected');
+		}
+
+		function conf()
+		{
+			$.confirm("请再次确认商品资料？", "系统提示", function () {
+				confCheck();	
+				var params = getPara();
+				$.showLoading();
+				jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "uploadGoodsForSeller",
+				data: {
+					safeCode: cookieget("usersafety"),
+					para:params
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					$.hideLoading();
+					$.alert(response[0].mesg,"系统提示");
+					if ("success" == response[0].status) {
+						clearPara();
+					}
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})	
+			}, function () {
+				//取消操作
+			});
+		}
+
+	
+
+		function confCheck()
+		{
+			if(isBlank($("#goodsName").val()))
+			{
+				$.alert("商品名称不能为空","系统提示");
+				return;
+			}
+			if(isBlank($("#goodsShortName").val()))
+			{
+				$.alert("商品简称不能为空","系统提示");
+				return;
+			}
+			if(isBlank($("#goodsCode").val()))
+			{
+				$.alert("商品编码不能为空","系统提示");
+				return;
+			}
+			if(isBlank($("#goodsScanCode").val()))
+			{
+				$.alert("商品条码不能为空","系统提示");
+				return;
+			}
+			if(isBlank($("#goodsUnit").val()))
+			{
+				$.alert("商品单位不能为空","系统提示");
+				return;
+			}
+			if(isBlank($("#goodsSalePrice").val()))
+			{
+				$.alert("商品售价不能为空","系统提示");
+				return;
+			}
+			if(0==$("#bigCategory  option:selected").val())
+			{
+				$.alert("请选择商品分类","系统提示");
+				return;
+			}
+			if(isBlank($("#mainfiles").val()))
+			{
+				$.alert("请上传商品主图","系统提示");
+				return;
+			}
+			if(isBlank($("#subfiles").val()))
+			{
+				$.alert("请上传商品详情图","系统提示");
+				return;
+			}
+		}
+
+
+		//验证用户身份
+		function IDValid() {
+			if (isBlank(cookieget("usersafety"))) {
+				if (isHxApp()) {
+					app_GoLogin();
+				} else {
+					window.location.href = "login.html";
+				}
+			}
+		}
+
+
+		function supplierInit() {
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "getSellerForSupplier",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					if ("success" == response[0].status) {
+						var list = response[0].data;
+						$("#supplierID").val(list[0].gysID);
+						$("#shID").val(list[0].shID);
+						$("#supplierName").val(list[0].gysName);
+					}
+				},
+				error: function () {
+				}
+			})
+		}
+
+
+
+		function getBigCategory() {
+			$.showLoading();
+			jQuery.ajax({
+				type: "get",
+				url: horse_ajax + "getGoodsCategory",
+				data: {
+					safeCode: cookieget("usersafety")
+				},
+				dataType: "jsonp",
+				crossDomain: true,
+				success: function (response) {
+					$.hideLoading();
+					if ("success" == response[0].status) {
+						$("#bigCategory").append("<option value=0>请选择商品分类</option>");
+						var list = response[0].data;
+					//	console.log(list);
+                        list.forEach(function (value, index, array) {
+							$("#bigCategory").append("<option value='"+array[index].lb_id+","+array[index].lb_number+"' >"+array[index].lb_name+"</option>");
+                        });
+					}
+				},
+				error: function () {
+					$.hideLoading();
+				}
+			})
+		}
+
+
+	</script>
+</head>
+
+<body ontouchstart>
+	<div class="head" onclick="myBack('home.html')">
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="return">〈</a>
+		商品新增
+		<a href="javascript:javascript:" onclick="myBack('home.html')" class="search"></a>
+	</div>
+	<input type="hidden" id="supplierID">
+	<input type="hidden" id="shID">
+	<input type="hidden" id="mainfiles">
+	<input type="hidden" id="subfiles">
+
+	<div class="weui-cells weui-cells_form">
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">供应商名</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" placeholder="" readonly="readonly" id="supplierName">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">商品名称</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" placeholder="请填写商品名称" id="goodsName" maxlength="64">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">商品简称</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" placeholder="请填写商品简称" id="goodsShortName" maxlength="32">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">商品编码</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" placeholder="请填写编码规则" id="goodsCode" maxlength="20">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">商品条码</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" placeholder="请填写商品条码" id="goodsScanCode" maxlength="16">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">商品单位</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" placeholder="请填写商品单位" id="goodsUnit" maxlength="10">
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">销售价(元)</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" placeholder="请填写销售价" onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')" id="goodsSalePrice" maxlength="10">
+			</div>
+		</div>
+
+		<!-- <div class="weui-cell weui-cell_switch">
+			<div class="weui-cell__bd">非散称</div>
+			<div class="weui-cell__ft">
+				<input class="weui-switch" type="checkbox"  checked="checked">
+			</div>
+		</div> -->
+		<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+				  <label for="" class="weui-label">散称类别</label>
+				</div>
+				<div class="weui-cell__bd">
+				  <select class="weui-select" name="select2" id="goodsIfWeight">
+					<option value="1">否</option>
+					<option value="500">是</option>
+				  </select>
+				</div>
+		</div>
+
+
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">商品类别</label></div>
+			<div class="weui-cell__bd">
+			<select class="weui-input" id="bigCategory">
+			  </select>
+			</div>
+		</div>
+
+
+
+
+		<div class="weui-cell">
+			<div class="weui-cell__bd">
+				<div class="weui-uploader">
+					<div class="weui-uploader__hd">
+						<p class="weui-uploader__title">商品图片</p>
+						<div class="weui-uploader__info" id="mainCount">0</div>
+					</div>
+					<div class="weui-uploader__bd">
+						<div class="weui-uploader__input-box">
+							<input id="uploaderInput1" class="weui-uploader__input" type="button"  multiple="">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="weui-cell">
+			<div class="weui-cell__bd">
+				<div class="weui-uploader">
+					<div class="weui-uploader__hd">
+						<p class="weui-uploader__title">详情图片</p>
+						<div class="weui-uploader__info" id="subCount">0</div>
+					</div>
+					<div class="weui-uploader__bd">
+						<div class="weui-uploader__input-box">
+							<input id="uploaderInput2" class="weui-uploader__input" type="button"  multiple="">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+
+		<div class="demos-content-padded" style="margin: 0.75em 0.75em">
+				<a href="javascript:conf();" id="confbtn" class="weui-btn weui-btn_primary">新增</a>
+		</div>
+
+	</div>
+
+	<script src="../lib/fastclick.js "></script>
+	<script type="text/javascript " src="../js/jquery-weui.min.js "></script>
+	<script>
+		$(function () {
+			FastClick.attach(document.body);
+		});
+	</script>
+</body>
+
+</html>

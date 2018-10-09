@@ -976,6 +976,12 @@ function app_QrCode(type, qrtype) {
 function app_UploadPic(path, type) {
 	CallApp("Act=OpenCamera&UploadUrl=" + path + "&SuccessType=" + type);
 }
+
+
+function aapp_UploadPic_Local(path,type)
+{
+
+}
 // 打开登录
 function app_GoLogin() {
 	// alert('打开登录');
@@ -1254,7 +1260,9 @@ function callSMSRefuse(userSafety, orderHead) {
 	})
 }
 
-
+function pickPics(type,method){
+	CallApp("Act=PickLocalPic&UploadType="+type+"&SuccessType="+method);
+}
 
 
 //------------------------------------------js_app函数//---------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数//------------------------------------------js_app函数
