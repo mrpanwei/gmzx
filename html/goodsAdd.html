@@ -57,16 +57,37 @@
 		function UploadPicOk_main(files)
 		{
 			$("#mainfiles").val(files);
-			var arr = files.split(';');
-			$("#mainCount").val(arr.length);
+			//展示几张图片
+			var arr = files.split(";");
+			$("#mainCount").html(arr.length);
+			//开始预览(隔天临界有BUG，无法预览))
+			var date = new Date();
+			var imgPrev = "/big/"+date.getFullYear()+"/"+date.getDate()+"/";
+			var htmls = "";
+			for(var i = 0;i<arr.length;i++)
+			{
+				htmls+="<li class=\"weui-uploader__file\" style=\"background-image:url(http://img.554488.com"+imgPrev+arr[i]+")\"></li>";
+			}
+			$("#uploaderFiles_main").html(htmls);
+			
 		}
 
 		function UploadPicOk_sub(files)
 		{
-			$.alert(files,"DEBUG");
 			$("#subfiles").val(files);
-			var arr = files.split(';');
-			$("#subCount").val(arr.length);
+			//展示几张图片
+			var arr = files.split(";");
+			$("#subCount").html(arr.length);
+			//开始预览(隔天临界有BUG，无法预览))
+			var date = new Date();
+			var imgPrev = "/more/big/"+date.getFullYear().toString()+(date.getMonth()+1).toString()+"/";
+			//dyn loading
+			var htmls = "";
+			for(var i = 0;i<arr.length;i++)
+			{
+				htmls+="<li class=\"weui-uploader__file\" style=\"background-image:url(http://img.554488.com"+imgPrev+arr[i]+")\"></li>";
+			}
+			$("#uploaderFiles_sub").html(htmls);
 		}
 
 
@@ -84,7 +105,7 @@
 						{
 							$.alert("暂不支持拍照上传","系统提示");
 						}else{
-								$.alert("网页端无法启动摄像头","系统提示");
+							$.alert("网页端无法启动摄像头","系统提示");
 						}
 						}
 					},{
@@ -158,8 +179,8 @@
 			$("#goodsSalePrice").val("");
 			$("#mainfiles").val("");
 			$("#subfiles").val("");
-			$("#mainCount").val(0);
-			$("#subCount").val(0);
+			$("#mainCount").html(0);
+			$("#subCount").html(0);
 			$("#bigCategory option:first").prop("selected", 'selected');
 			$("#goodsIfWeight option:first").prop("selected", 'selected');
 		}
@@ -167,7 +188,8 @@
 		function conf()
 		{
 			$.confirm("请再次确认商品资料？", "系统提示", function () {
-				confCheck();	
+				if(confCheck())
+				{
 				var params = getPara();
 				$.showLoading();
 				jQuery.ajax({
@@ -190,6 +212,7 @@
 					$.hideLoading();
 				}
 			})	
+				}
 			}, function () {
 				//取消操作
 			});
@@ -199,51 +222,62 @@
 
 		function confCheck()
 		{
+			var ret = true;
 			if(isBlank($("#goodsName").val()))
 			{
 				$.alert("商品名称不能为空","系统提示");
+				ret = false;
 				return;
 			}
 			if(isBlank($("#goodsShortName").val()))
 			{
 				$.alert("商品简称不能为空","系统提示");
+				ret = false;
 				return;
 			}
 			if(isBlank($("#goodsCode").val()))
 			{
 				$.alert("商品编码不能为空","系统提示");
+				ret = false;
 				return;
 			}
 			if(isBlank($("#goodsScanCode").val()))
 			{
 				$.alert("商品条码不能为空","系统提示");
+				ret = false;
 				return;
 			}
 			if(isBlank($("#goodsUnit").val()))
 			{
 				$.alert("商品单位不能为空","系统提示");
+				ret = false;
 				return;
 			}
 			if(isBlank($("#goodsSalePrice").val()))
 			{
 				$.alert("商品售价不能为空","系统提示");
+				ret = false;
 				return;
 			}
 			if(0==$("#bigCategory  option:selected").val())
 			{
 				$.alert("请选择商品分类","系统提示");
+				ret = false;
 				return;
 			}
 			if(isBlank($("#mainfiles").val()))
 			{
 				$.alert("请上传商品主图","系统提示");
+				ret = false;
 				return;
 			}
 			if(isBlank($("#subfiles").val()))
 			{
 				$.alert("请上传商品详情图","系统提示");
+				ret = false;
 				return;
 			}
+			return ret;
 		}
 
 
@@ -280,7 +314,6 @@
 				}
 			})
 		}
-
 
 
 		function getBigCategory() {
@@ -407,13 +440,17 @@
 			<div class="weui-cell__bd">
 				<div class="weui-uploader">
 					<div class="weui-uploader__hd">
-						<p class="weui-uploader__title">商品图片</p>
+						<p class="weui-uploader__title">商品图片(建议最多3张)</p>
 						<div class="weui-uploader__info" id="mainCount">0</div>
 					</div>
 					<div class="weui-uploader__bd">
+					
 						<div class="weui-uploader__input-box">
 							<input id="uploaderInput1" class="weui-uploader__input" type="button"  multiple="">
 						</div>
+						<ul class="weui-uploader__files" id="uploaderFiles_main">
+							<!-- <li class="weui-uploader__file" style="background-image:url(http://img.554488.com/big/201807/5a3a3c55-43e1-4d4c-b2d1-17c33d692752.jpg)"></li> -->
+						</ul>
 					</div>
 				</div>
 			</div>
@@ -423,13 +460,16 @@
 			<div class="weui-cell__bd">
 				<div class="weui-uploader">
 					<div class="weui-uploader__hd">
-						<p class="weui-uploader__title">详情图片</p>
+						<p class="weui-uploader__title">详情图片(建议最多9张)</p>
 						<div class="weui-uploader__info" id="subCount">0</div>
 					</div>
 					<div class="weui-uploader__bd">
 						<div class="weui-uploader__input-box">
 							<input id="uploaderInput2" class="weui-uploader__input" type="button"  multiple="">
 						</div>
+						<ul id="uploaderFiles_sub">
+								<!-- <li class="weui-uploader__file" style="background-image:url(http://img.554488.com/big/201807/5a3a3c55-43e1-4d4c-b2d1-17c33d692752.jpg)"></li> -->
+						</ul>
 					</div>
 				</div>
 			</div>
