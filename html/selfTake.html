@@ -87,7 +87,7 @@
 								//这里是一个新的订单 ,纪录头信息,如有信息了就合成
 								if (packsHead.length > 0) {
 									packsShow = "<div id=\"" + oldHead + "\">" + packsHead +
-										itemBodyCover(packages,list[i].Order_head,list[i - 1].checkCode) + bank() + "</div>";
+										itemBodyCover(packages,list[i-1].Order_head,list[i - 1].checkCode) + bank() + "</div>";
 									packsShowAll = packsShowAll + packsShow;
 									packages = "";
 									forCount++;
